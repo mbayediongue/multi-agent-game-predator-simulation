@@ -36,6 +36,8 @@ public class GridManagement implements SimulationComponent {
 	protected int display;
 	protected int displaywidth;
 	protected int displayheight;
+	protected int display_x;
+	protected int display_y;
 	protected String displaytitle;
 	protected Color colorrobot;
 	protected Color colorobstacle;
@@ -78,7 +80,7 @@ public class GridManagement implements SimulationComponent {
 	}
 	
 	public void createColorGrid(int width, int height, String title){
-		cg = new ColorGrid(width,height,grid.getColumns(),grid.getRows(), title);
+		cg = new ColorGrid(display_x,display_y,width,height,grid.getColumns(),grid.getRows(), title);
 		for(int i = 0; i < grid.getRows(); i++) {
 			for(int j = 0; j < grid.getColumns(); j++) {
 				Situated elt = grid.getCell(i, j);
@@ -379,6 +381,8 @@ public class GridManagement implements SimulationComponent {
     	    if(display==1){
    				clientMqtt.subscribe("display/width");
 				clientMqtt.subscribe("display/height");
+				clientMqtt.subscribe("display/x");
+				clientMqtt.subscribe("display/y");
 				clientMqtt.subscribe("display/title");
 				clientMqtt.subscribe("display/robot");
 				clientMqtt.subscribe("display/goal");
@@ -422,6 +426,12 @@ public class GridManagement implements SimulationComponent {
         	}
 			else if (topic.contains("display/height")) {
             	displayheight = Integer.parseInt((String)content.get("displayheight"));
+        	}
+        	if (topic.contains("display/x")) {
+    	        display_x = Integer.parseInt((String)content.get("display_x"));
+        	}
+			else if (topic.contains("display/y")) {
+            	display_y = Integer.parseInt((String)content.get("display_y"));
         	}
 			else if (topic.contains("display/title")) {
             	displaytitle = (String)content.get("displaytitle");

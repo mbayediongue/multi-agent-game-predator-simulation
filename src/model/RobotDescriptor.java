@@ -4,7 +4,7 @@ import org.json.simple.JSONObject;
 import java.util.Map;
 import java.util.HashMap;
 
-public class RobotDescriptor extends EntityDescriptor implements Situated{
+public class RobotDescriptor extends EntityDescriptor {
 	
 	protected Map<String,String> properties;	
 	

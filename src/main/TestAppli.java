@@ -21,6 +21,8 @@ public class TestAppli {
 	protected static int SIMULATION;
 	protected static int DISPLAYWIDTH;
 	protected static int DISPLAYHEIGHT;
+	protected static int DISPLAY_X;
+	protected static int DISPLAY_Y;
 	protected static String DISPLAYTITLE;
 	protected static int NBROBOT;
 	protected static int NBOBSTACLE;
@@ -38,8 +40,8 @@ public class TestAppli {
 		String sttime = "log-"+java.time.LocalDateTime.now();
 		File f = new File(sttime);
 		f.mkdir();
-		IniFile ifile= new IniFile("prop_real.ini");
-		//IniFile ifile= new IniFile("prop.ini");
+		//IniFile ifile= new IniFile("prop_real.ini");
+		IniFile ifile= new IniFile("prop.ini");
 		TestAppli.MQTT = ifile.getIntValue("configuration","mqtt");
 		TestAppli.WAITTIME = ifile.getIntValue("configuration","waittime");
 		TestAppli.DISPLAY = ifile.getIntValue("configuration","display");
@@ -76,6 +78,8 @@ public class TestAppli {
 		if(TestAppli.DISPLAY == 1) { 
 			TestAppli.DISPLAYWIDTH =  ifile.getIntValue("display","width");
 			TestAppli.DISPLAYHEIGHT = ifile.getIntValue("display","height");
+			TestAppli.DISPLAY_X =  ifile.getIntValue("display","x");
+			TestAppli.DISPLAY_Y = ifile.getIntValue("display","y");
 			TestAppli.DISPLAYTITLE = ifile.getStringValue("display","title");
 			TestAppli.COLORROBOT = ifile.getColorValue("color","robot");
 			TestAppli.COLORGOAL = ifile.getColorValue("color","goal"); 
@@ -127,6 +131,12 @@ public class TestAppli {
 			mymes = new JSONObject();
 			mymes.put("displayheight", TestAppli.DISPLAYHEIGHT+"");	
 			mqttClient.publish("display/height",mymes.toJSONString());
+			mymes = new JSONObject();
+			mymes.put("display_x", TestAppli.DISPLAY_X+"");
+			mqttClient.publish("display/x",mymes.toJSONString());
+			mymes = new JSONObject();
+			mymes.put("display_y", TestAppli.DISPLAY_Y+"");	
+			mqttClient.publish("display/y",mymes.toJSONString());
 			mymes = new JSONObject();
 			mymes.put("displaytitle", TestAppli.DISPLAYTITLE);
 			mqttClient.publish("display/title",mymes.toJSONString());
