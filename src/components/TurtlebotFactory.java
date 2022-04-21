@@ -46,6 +46,9 @@ public class TurtlebotFactory implements SimulationComponent {
 		if (topic.contains("configuration/nbRobot")) {
            	initRobots(content);
         }
+        else if (topic.contains("configuration/real_robot")) {
+           	initRealRobots(content);
+        }
         else if (topic.contains("configuration/debug")) {
            	debug = Integer.parseInt((String)content.get("debug"));
         }
@@ -148,6 +151,7 @@ public class TurtlebotFactory implements SimulationComponent {
 
 	public void initSubscribe() {		
 		clientMqtt.subscribe("configuration/nbRobot");
+		clientMqtt.subscribe("configuration/real_robot");
 		clientMqtt.subscribe("configuration/debug");
 		clientMqtt.subscribe("configuration/display");
 		clientMqtt.subscribe("configuration/simulation");
@@ -216,13 +220,24 @@ public class TurtlebotFactory implements SimulationComponent {
 		return mesRobots.get(idRobot);
 	}
 
-	public void initRobots(JSONObject nbRobot) {
-		int nbr = Integer.parseInt((String) nbRobot.get("nbRobot"));
+	public void initRobots(JSONObject content) {
+		int nbr = Integer.parseInt((String) content.get("nbRobot"));
 		if( debug == 1) {
 			System.out.println(nbr);
 		}
 		for (int i = 2; i < 2 + nbr; i++) {
 			factory(i, turtlebotName + i, clientMqtt);
 		}
+	}
+
+	public void initRealRobots(JSONObject content) {
+		JSONArray jar = (JSONArray)content.get("jar");
+		int nbr = jar.size();
+		if( debug == 1) {
+			System.out.println(nbr);
+		}
+        for(int i = 2; i < nbr+2; i++) {
+        	factory(i, turtlebotName + i, clientMqtt);        	
+		}			
 	}
 }

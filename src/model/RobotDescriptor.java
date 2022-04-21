@@ -39,6 +39,14 @@ public class RobotDescriptor extends EntityDescriptor implements Situated{
 		properties.put("name", name);
 	}
 
+	public void set(String key,String value) {
+		properties.put(key, value);
+	}
+
+	public String get(String key) {
+		return properties.get(key);
+	}
+
 	public String toString() {
 		return "{type: " + getComponentType() + ", name: " + getName()+ ", id: " + getId() + ", x: " + x  + ", y: " + y + "}"; 
 	}

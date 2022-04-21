@@ -4,11 +4,15 @@ import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import java.net.URI;
 import java.net.URISyntaxException;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import burger.RealTurtlebot;
 
 /* This class handles the connection with the Rosbridge websocket server */
 public class RosbridgeClient {
     private WebSocketClient wsc;
-    
+    private RealTurtlebot myrobot;
 
     public WebSocketClient getWsc () {
         return wsc;
@@ -19,7 +23,7 @@ public class RosbridgeClient {
     }
     
     /* Connection to the webSocket */
-    public RosbridgeClient(String host, String port) {
+    public RosbridgeClient(String host, String port, RealTurtlebot myrobot) {
         try {
             wsc = new WebSocketClient(new URI("ws://" + host + ":" + port)) {
                 @Override
@@ -29,7 +33,18 @@ public class RosbridgeClient {
 
                 @Override
                 public void onMessage(String arg0) {
-
+                    try{
+                        JSONParser parser = new JSONParser();
+                        JSONObject json = (JSONObject) parser.parse(arg0);
+                        String st = (String)json.get("topic");
+                        String[] tt = st.split("/");
+                        if(tt[1].equals(myrobot.prefix)) {
+                            System.out.println("inform inform");
+                            myrobot.inform();
+                        }
+                   } catch(ParseException e) {
+                        System.out.println("ParseException: " + e);
+                   }
                 }
 
                 @Override

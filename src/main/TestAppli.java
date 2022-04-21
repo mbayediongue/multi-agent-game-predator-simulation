@@ -6,6 +6,7 @@ import mqtt.Mqtt;
 import mqtt.NoMqtt;
 import java.awt.Color;
 import org.json.simple.JSONObject;
+import org.json.simple.JSONArray;
 import components.TurtlebotFactory;
 import java.io.File;
 import java.time.LocalDateTime;  
@@ -31,12 +32,14 @@ public class TestAppli {
 	protected static Color COLORGOAL;
 	protected static Color COLOROBSTACLE;
 	protected static Color COLOROTHER;
+	protected static Color COLORUNKNOWN;
 
 	public static void main(String[] args) throws Exception {
 		String sttime = "log-"+java.time.LocalDateTime.now();
 		File f = new File(sttime);
 		f.mkdir();
-		IniFile ifile= new IniFile("prop.ini");
+		IniFile ifile= new IniFile("prop_real.ini");
+		//IniFile ifile= new IniFile("prop.ini");
 		TestAppli.MQTT = ifile.getIntValue("configuration","mqtt");
 		TestAppli.WAITTIME = ifile.getIntValue("configuration","waittime");
 		TestAppli.DISPLAY = ifile.getIntValue("configuration","display");
@@ -48,14 +51,37 @@ public class TestAppli {
 		TestAppli.FIELD =  ifile.getIntValue("configuration", "field");
 		TestAppli.ROWS =  ifile.getIntValue("environment", "rows");
 		TestAppli.COLUMNS =  ifile.getIntValue("environment", "columns");
+		JSONArray jar = new JSONArray();	
+		JSONArray jao = new JSONArray();
+		if(TestAppli.SIMULATION == 0) { 
+			for(int k = 1;k <= TestAppli.NBROBOT; k++){
+				String st = ifile.getStringValue("real_robot"+k, "name");
+				int xr = ifile.getIntValue("real_robot"+k, "position_x");
+				int yr = ifile.getIntValue("real_robot"+k, "position_y");
+				JSONObject jo = new JSONObject();
+				jo.put("name",st);
+				jo.put("x",xr+"");
+				jo.put("y",yr+"");				
+				jar.add(jo);
+			}
+			for(int k = 1;k <= 24; k++){
+				int xo = ifile.getIntValue("obstacle"+k, "x");
+				int yo = ifile.getIntValue("obstacle"+k, "y");
+				JSONObject jo = new JSONObject();				
+				jo.put("x",xo+"");
+				jo.put("y",yo+"");
+				jao.add(jo);
+			}
+		}
 		if(TestAppli.DISPLAY == 1) { 
 			TestAppli.DISPLAYWIDTH =  ifile.getIntValue("display","width");
 			TestAppli.DISPLAYHEIGHT = ifile.getIntValue("display","height");
 			TestAppli.DISPLAYTITLE = ifile.getStringValue("display","title");
 			TestAppli.COLORROBOT = ifile.getColorValue("color","robot");
-			TestAppli.COLORGOAL = ifile.getColorValue("color","goal");
+			TestAppli.COLORGOAL = ifile.getColorValue("color","goal"); 
 			TestAppli.COLOROBSTACLE = ifile.getColorValue("color","obstacle");
 			TestAppli.COLOROTHER = ifile.getColorValue("color","other");
+			TestAppli.COLORUNKNOWN = ifile.getColorValue("color","unknown");
 		}
 		
 		Message mqttClient;
@@ -116,27 +142,50 @@ public class TestAppli {
 			mymes = new JSONObject();
 			mymes.put("color", Integer.toString(TestAppli.COLOROTHER.getRGB()));
 			mqttClient.publish("display/other",mymes.toJSONString());
+			mymes = new JSONObject();
+			mymes.put("color", Integer.toString(TestAppli.COLORUNKNOWN.getRGB()));
+			mqttClient.publish("display/unknown",mymes.toJSONString());
 		}
 		mymes = new JSONObject();
 		mymes.put("rows", TestAppli.ROWS+"");
 		mqttClient.publish("environment/rows",mymes.toJSONString());	
 		mymes = new JSONObject();
 		mymes.put("columns", TestAppli.COLUMNS+"");
-		mqttClient.publish("environment/columns",mymes.toJSONString());
+		mqttClient.publish("environment/columns",mymes.toJSONString());		
 		mymes = new JSONObject();
 		mymes.put("nbObstacle", TestAppli.NBOBSTACLE+"");
 		mqttClient.publish("configuration/nbObstacle", mymes.toJSONString());		
+		if(TestAppli.SIMULATION == 0) { 
+			mymes = new JSONObject();
+			mymes.put("jao",jao);
+			mqttClient.publish("configuration/obstacles",mymes.toJSONString());			
+		}
 		mymes = new JSONObject();
 		mymes.put("columns", TestAppli.COLUMNS+"");
 		mymes.put("rows", TestAppli.ROWS+"");
 		mqttClient.publish("environment/grid",mymes.toJSONString());	
-		mymes = new JSONObject();
-		mymes.put("nbRobot", TestAppli.NBROBOT+"");
-		mqttClient.publish("configuration/nbRobot", mymes.toJSONString());
+		if(TestAppli.SIMULATION == 1) { 
+			mymes = new JSONObject();
+			mymes.put("nbRobot", TestAppli.NBROBOT+"");
+			mqttClient.publish("configuration/nbRobot", mymes.toJSONString());
+		}
+		if(TestAppli.SIMULATION == 0) { 
+			mymes = new JSONObject();
+			mymes.put("jar",jar);
+			mqttClient.publish("configuration/real_robot",mymes.toJSONString());			
+		}
 		tf.initTurtle();
-		env.publishInitRobot();
+		if(TestAppli.SIMULATION == 1) { 
+			env.publishInitRobot();
+		}
+		if(TestAppli.SIMULATION == 0) { 
+			env.publishInitRealRobot();
+		}
 		env.publishGridSize();
 		tf.initTurtleGrid();
+		if(TestAppli.SIMULATION == 0) { 
+			env.initLEDTable();
+		}
 		tf.schedule(100);	
 		/*tf.publishRobotInit();
 		try {

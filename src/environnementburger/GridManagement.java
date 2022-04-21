@@ -23,12 +23,14 @@ import org.json.simple.JSONObject;
 public class GridManagement implements SimulationComponent {
 	protected Grid grid;
 	private ArrayList<Goal> goals;
+	private ArrayList<Obstacle> obstacles;
 	private static final String turtlebotName = "burger_";
 	protected int nbObstacles;
 	protected int nbRobots;
 	protected Message clientMqtt;
 	protected String name;
 	protected int debug;
+	protected int simulation;
 	protected int rows;
 	protected int columns;
 	protected int display;
@@ -40,12 +42,14 @@ public class GridManagement implements SimulationComponent {
 	protected Color colorgoal;
 	protected Color colorother;
 	protected Color colorunknown;
-
-	ColorGrid cg;
-	
+	protected ColorGrid cg;
+	protected Slabs slabs;
 	protected int seed;
 
 	public void initSubscribe() {
+		clientMqtt.subscribe("robot/nextPosition");	
+		clientMqtt.subscribe("configuration/real_robot");
+		clientMqtt.subscribe("configuration/obstacles");	
 		clientMqtt.subscribe("robot/nextPosition");	
 		clientMqtt.subscribe("configuration/nbRobot");	
 		clientMqtt.subscribe("configuration/nbObstacle");	
@@ -53,6 +57,7 @@ public class GridManagement implements SimulationComponent {
 		clientMqtt.subscribe("configuration/seed");	
 		clientMqtt.subscribe("configuration/display");	
 		clientMqtt.subscribe("configuration/debug");	
+		clientMqtt.subscribe("configuration/simulation");	
 		clientMqtt.subscribe("configuration/robot/grid");	
 		clientMqtt.subscribe("robot/grid");	
 		clientMqtt.subscribe("environment/grid");
@@ -100,6 +105,16 @@ public class GridManagement implements SimulationComponent {
 		this.debug = 0;
 		this.display = 0;
 		goals = new ArrayList<Goal>();
+		obstacles = new ArrayList<Obstacle>();
+	}
+
+	public void initLEDTable(){
+		slabs.setColorrobot(colorrobot);
+		slabs.setColorobstacle(colorobstacle);
+		slabs.setColorgoal(colorgoal);
+		slabs.setColorother(colorother);
+		slabs.setColorunknown(colorunknown);
+		slabs.initLEDTable(grid.getGrid());
 	}
 
 	public void publishGridSize(){
@@ -124,9 +139,12 @@ public class GridManagement implements SimulationComponent {
 		clientMqtt.publish("inform/grid/obstacles", obst.toJSONString());
 	}
 
-	public void init() {
-		for (int i = 0; i < nbObstacles; i++) {
-			int[] pos = grid.locate();
+	public void init() {	
+		for (int i = 0; i < obstacles.size(); i++) {			
+			grid.putSituatedComponent(obstacles.get(i));			
+		}	
+		for (int i = 0; i < nbObstacles; i++) {			
+			int[] pos = grid.locate();			
 			Obstacle obs = new Obstacle(pos);
 			grid.putSituatedComponent(obs);			
 		}
@@ -156,6 +174,10 @@ public class GridManagement implements SimulationComponent {
 				if(display == 1) { 
 					cg.setBlockColor(x1,y1,colorother);
 					cg.setBlockColor(x2,y2,colorrobot);
+					cg.refresh();
+				}
+				if(simulation == 0){
+					slabs.setLed(x1,y1,x2,y2,colorunknown,colorrobot);
 				}
 				return true;
 			}
@@ -224,6 +246,21 @@ public class GridManagement implements SimulationComponent {
 		}
 	}
 
+	public void publishInitRealRobot() {
+		List<Situated> ls = grid.get(ComponentType.robot);
+		for(Situated s:ls){
+			RobotDescriptor rb = (RobotDescriptor)s;
+			JSONObject jo = new JSONObject();
+			jo.put("name", rb.getName());
+			jo.put("id", rb.getId()+"");
+			jo.put("real", rb.get("real"));
+			jo.put("prefix", rb.get("prefix"));
+			jo.put("x", rb.getX()+"");
+			jo.put("y", rb.getY()+"");
+			clientMqtt.publish(rb.getName()+"/position/init", jo.toJSONString());
+		}
+	}
+
 	public void handleMessage(String topic, JSONObject content){
 		//System.out.println("Message:"+ content.toJSONString());
 		if (topic.contains("robot/nextPosition")) {
@@ -248,6 +285,49 @@ public class GridManagement implements SimulationComponent {
 			}
 			if(debug == 1) {
 				grid.display();
+			}
+			if(simulation == 0){
+				slabs.setLed(xor,yor,xr,yr,colorunknown,colorrobot);
+			}
+		}else if (topic.contains("configuration/real_robot")) {
+			JSONArray jar = (JSONArray)content.get("jar");
+			nbRobots = jar.size();
+           	for(int i = 2; i < nbRobots+2; i++) {
+           		JSONObject jo = (JSONObject)jar.get(i-2);           		
+           		int[] pos = new int[2];
+           		pos[0] = Integer.parseInt((String)jo.get("x"));
+           		pos[1] = Integer.parseInt((String)jo.get("y"));
+           		RobotDescriptor rb = new RobotDescriptor(pos, i, GridManagement.turtlebotName+i);
+           		rb.set("prefix",(String)jo.get("name"));
+           		rb.set("real",1+"");
+				grid.putSituatedComponent(rb);
+				if(display == 1) {
+					cg.setBlockColor(pos[0], pos[1], colorrobot);
+					cg.refresh();
+				}				
+			}
+			for (int i = 2; i < nbRobots+2; i++) {
+				int[] pos = grid.locate();
+				// ec = (EmptyCell)grid.getCell(pos[1], pos[0]);
+				goals.add(new Goal(pos[0],pos[1],-1*i));
+				if(display == 1) {
+					cg.setBlockColor(pos[0], pos[1], colorgoal);
+					cg.refresh();
+				}	
+			}
+			if(debug == 1) {
+				grid.display(goals);
+			}			
+		}else if (topic.contains("configuration/obstacles")) {
+			JSONArray jao = (JSONArray)content.get("jao");
+			int nbObss = jao.size();
+			for (int i = 0; i < nbObss; i++) {
+				int[] pos = new int[2];
+				JSONObject jo = (JSONObject)jao.get(i);
+				pos[0] = Integer.parseInt((String)jo.get("x"));
+				pos[1] = Integer.parseInt((String)jo.get("y"));
+				Obstacle obs = new Obstacle(pos);
+				obstacles.add(obs);			
 			}
 		}else if (topic.contains("configuration/nbRobot")) {
            	nbRobots = Integer.parseInt((String)content.get("nbRobot"));
@@ -307,6 +387,13 @@ public class GridManagement implements SimulationComponent {
 				clientMqtt.subscribe("display/unknown");
     	    }
         }
+        else if (topic.contains("configuration/simulation")) {
+        	simulation = Integer.parseInt((String)content.get("simulation"));
+        	if(simulation == 0){
+	        	slabs = new Slabs();
+				slabs.initSlab();
+			}		
+        }        		
         else if (topic.contains("configuration/seed")) {
     	    seed = Integer.parseInt((String)content.get("seed"));
         }
@@ -350,6 +437,9 @@ public class GridManagement implements SimulationComponent {
         	}
         	else if (topic.contains("display/other")) {
             	colorother = new Color(Integer.parseInt((String)content.get("color")));
+        	}
+        	else if (topic.contains("display/unknown")) {
+            	colorunknown = new Color(Integer.parseInt((String)content.get("color")));
         	}
         }		
 	}
