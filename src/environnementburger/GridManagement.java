@@ -49,7 +49,6 @@ public class GridManagement implements SimulationComponent {
 	protected int seed;
 
 	public void initSubscribe() {
-		clientMqtt.subscribe("robot/nextPosition");	
 		clientMqtt.subscribe("configuration/real_robot");
 		clientMqtt.subscribe("configuration/obstacles");	
 		clientMqtt.subscribe("robot/nextPosition");	
@@ -63,12 +62,6 @@ public class GridManagement implements SimulationComponent {
 		clientMqtt.subscribe("configuration/robot/grid");	
 		clientMqtt.subscribe("robot/grid");	
 		clientMqtt.subscribe("environment/grid");
-	}
-
-	public void publishState(JSONObject content) {
-		String robotName = (String)((JSONObject)content.get("robot")).get("id");
-		//JSONObject state = giveState(content,robotName);
-		//clientMqtt.publish(robotName+"/robot/state", state.toJSONString());	
 	}
 
 	public int isGoal(int x, int y) {
@@ -370,9 +363,6 @@ public class GridManagement implements SimulationComponent {
             JSONObject jo = gridToJSONObject(xr, yr, fieldr);
             clientMqtt.publish(nameR+"/grid/update", jo.toJSONString());
         }
-		else if (topic.contains("robot/nextPosition")) {
-            publishState(content);
-        } 
 		else if (topic.contains("configuration/debug")) {
     	    debug = Integer.parseInt((String)content.get("debug"));
         }
