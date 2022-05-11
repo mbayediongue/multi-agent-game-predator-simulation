@@ -37,7 +37,7 @@ public class UnknownCell implements Situated {
 		
 	}
 
-	public void setY(int dy) {
+	public void setY(int y) {
 		this.y = y;
 		
 	}

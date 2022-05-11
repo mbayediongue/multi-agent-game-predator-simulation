@@ -12,7 +12,7 @@ public class Grid {
     protected int nbRobots;
     protected int nbObstacles;
     private Random rnd;
-    
+
     public Grid(int rows, int columns, int seed) {
         this.rows = rows;
         this.columns = columns;

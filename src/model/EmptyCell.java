@@ -33,7 +33,7 @@ public class EmptyCell implements Situated {
 	}
 
 	@Override
-	public void setY(int dy) {
+	public void setY(int y) {
 		this.y = y;
 		
 	}
