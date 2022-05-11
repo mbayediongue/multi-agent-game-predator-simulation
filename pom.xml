@@ -20,8 +20,8 @@
                     <source>1.8</source>
                     <target>1.8</target>
                     <fork>true</fork>
-                    <meminitial>1g</meminitial>
-                    <maxmem>4g</maxmem>
+                    <meminitial>1024m</meminitial>
+                    <maxmem>4096m</maxmem>
                 </configuration>
 <!--              
                     <excludes>
