@@ -196,7 +196,7 @@ public class TestAppli {
 		if(TestAppli.SIMULATION == 0) { 
 			env.initLEDTable();
 		}
-		tf.schedule(100);	
+		tf.schedule(100);
 		/*tf.publishRobotInit();
 		try {
 		    Thread.sleep(TestAppli.WAITTIME);
