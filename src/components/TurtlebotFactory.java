@@ -1,14 +1,11 @@
 package components;
 
+import burger.*;
 import mqtt.Message;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import burger.SmartTurtlebot;
-import burger.RandomTurtlebot;
-import burger.RealTurtlebot;
-import burger.Orientation;
 import mqtt.Message;
 
 import java.util.HashMap;
@@ -176,7 +173,8 @@ public class TurtlebotFactory implements SimulationComponent {
 	    	if(debug == 1) {
 	    		System.out.println("Create simulated robot");
 	    	}
-	    	turtle = new SmartTurtlebot(id, name, seed, field, clientMqtt, debug);
+	    	//turtle = new SmartTurtlebot(id, name, seed, field, clientMqtt, debug);
+			turtle = new WolfTurtlebot(id, name, seed, field, clientMqtt, debug,2);
 	    	//turtle = new RandomTurtlebot(id, name, seed, field, clientMqtt, debug);
 	    	if(debug==2 && sttime != null) {
 	    		turtle.setLog(sttime);
