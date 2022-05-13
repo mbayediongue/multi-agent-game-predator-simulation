@@ -10,6 +10,8 @@ public class ColorGrid extends JPanel {
 	
 	private int width;
 	private int height;
+	private int x;
+	private int y;
 	private int rows;
 	private int columns;
 	private int xratio;
@@ -18,8 +20,10 @@ public class ColorGrid extends JPanel {
 	private JFrame window;
 	private Color[][] blocks;
 
-	public ColorGrid(int width, int height, int rows, int columns, String title) {
+	public ColorGrid(int x, int y, int width, int height, int rows, int columns, String title) {
 		super();
+		this.x = x;
+		this.y = y;
 		this.width = width;
 		this.height = height;
 		this.rows = rows;
@@ -31,8 +35,11 @@ public class ColorGrid extends JPanel {
 	}
 
 	public void init(){
+//		System.out.println("x: "+ x+ ", y: " + y);
+//		System.out.println("w: "+ width+ ", h: " + height);
 		window = new JFrame(title);
         window.setSize(width, height+25);
+        window.setLocation(x, y);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.add(this);
         window.setVisible(true);
