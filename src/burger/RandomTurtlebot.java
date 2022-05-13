@@ -112,6 +112,7 @@ public class RandomTurtlebot extends Turtlebot{
         }
 	}
 
+
 	public void setLocation(int x, int y) {
 		int xo = this.x;
 		int yo = this.y;

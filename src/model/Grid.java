@@ -36,6 +36,55 @@ public class Grid {
         int [] result = {c,l};
         return result;
     }
+    //vision du lapin
+    public List<Situated> possibilities() {
+        List<Situated> adjacentPos = new ArrayList<Situated>();
+        Situated si;
+        for (int x=0; x==columns; x++) {
+            for (int y=0; x==rows; y++)
+                if(validCoordinate(x,y)){
+                    si=grid[x][y];
+                    if (si.getComponentType() == ComponentType.empty)
+                        adjacentPos.add(si);
+                }
+        }
+        return adjacentPos;
+    }
+
+    //position du loup
+    public int[] locateWolf() {
+        int l=-1, c = -1;
+        boolean locationNotFound = true;
+        while (locationNotFound) {
+            l = rnd.nextInt(rows);
+            c = rnd.nextInt(columns);
+            if (grid[l][c].getComponentType() == ComponentType.wolf) {
+                locationNotFound = false;
+                //grid[l][c] = nb;
+            }
+        }
+        int [] result = {c,l};
+        return result;
+    }
+
+    //position de la nourriture
+    public int[] locateFood() {
+        int l=-1, c = -1;
+        boolean locationNotFound = true;
+        while (locationNotFound) {
+            l = rnd.nextInt(rows);
+            c = rnd.nextInt(columns);
+            if (grid[l][c].getComponentType() == ComponentType.food) {
+                locationNotFound = false;
+                //grid[l][c] = nb;
+            }
+        }
+        int [] result = {c,l};
+        return result;
+    }
+
+
+
 
     public void initUnknown(){
         for(int i=0; i < rows;i++){
