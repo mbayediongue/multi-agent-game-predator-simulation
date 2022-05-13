@@ -21,7 +21,7 @@ public class RosbridgeClient {
     public void setWsc (WebSocketClient wsc) {
         this.wsc = wsc;
     }
-    
+
     /* Connection to the webSocket */
     public RosbridgeClient(String host, String port, RealTurtlebot myrobot) {
         try {
@@ -67,9 +67,9 @@ public class RosbridgeClient {
         }
     }
 
-	public void close() {
-		wsc.close();
-	}
+        public void close() {
+            wsc.close();
+        }
 
 
 }
