@@ -49,6 +49,12 @@ public class TurtlebotFactory implements SimulationComponent {
         else if (topic.contains("configuration/real_robot")) {
            	initRealRobots(content);
         }
+		else if (topic.contains("configuration/rabbit_robot")) {
+			initRabbitRobots(content);
+		}
+		else if (topic.contains("configuration/wolf_robot")) {
+			initWolfRobots(content);
+		}
         else if (topic.contains("configuration/debug")) {
            	debug = Integer.parseInt((String)content.get("debug"));
         }
@@ -152,6 +158,8 @@ public class TurtlebotFactory implements SimulationComponent {
 	public void initSubscribe() {		
 		clientMqtt.subscribe("configuration/nbRobot");
 		clientMqtt.subscribe("configuration/real_robot");
+		clientMqtt.subscribe("configuration/rabbit_robot");
+		clientMqtt.subscribe("configuration/wolf_robot");
 		clientMqtt.subscribe("configuration/debug");
 		clientMqtt.subscribe("configuration/display");
 		clientMqtt.subscribe("configuration/simulation");
@@ -176,7 +184,6 @@ public class TurtlebotFactory implements SimulationComponent {
 	    	if(debug == 1) {
 	    		System.out.println("Create simulated robot");
 	    	}
-	    	turtle = new SmartTurtlebot(id, name, seed, field, clientMqtt, debug);
 	    	//turtle = new RandomTurtlebot(id, name, seed, field, clientMqtt, debug);
 	    	if(debug==2 && sttime != null) {
 	    		turtle.setLog(sttime);
@@ -239,5 +246,25 @@ public class TurtlebotFactory implements SimulationComponent {
         for(int i = 2; i < nbr+2; i++) {
         	factory(i, turtlebotName + i, clientMqtt);        	
 		}			
+	}
+	public void initRabbitRobots(JSONObject content) {
+		JSONArray jar = (JSONArray)content.get("jar");
+		int nbr = jar.size();
+		if( debug == 1) {
+			System.out.println(nbr);
+		}
+		for(int i = 2; i < nbr+2; i++) {
+			factory(i, turtlebotName + i, clientMqtt);
+		}
+	}
+	public void initWolfRobots(JSONObject content) {
+		JSONArray jar = (JSONArray)content.get("jar");
+		int nbr = jar.size();
+		if( debug == 1) {
+			System.out.println(nbr);
+		}
+		for(int i = 2; i < nbr+2; i++) {
+			factory(i, turtlebotName + i, clientMqtt);
+		}
 	}
 }

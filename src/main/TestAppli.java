@@ -55,15 +55,29 @@ public class TestAppli {
 		TestAppli.COLUMNS =  ifile.getIntValue("environment", "columns");
 		JSONArray jar = new JSONArray();	
 		JSONArray jao = new JSONArray();
-		if(TestAppli.SIMULATION == 0) { 
+		if(TestAppli.SIMULATION == 1) {
 			for(int k = 1;k <= TestAppli.NBROBOT; k++){
-				String st = ifile.getStringValue("real_robot"+k, "name");
-				int xr = ifile.getIntValue("real_robot"+k, "position_x");
-				int yr = ifile.getIntValue("real_robot"+k, "position_y");
+				String st = ifile.getStringValue("rabbit_robot"+k, "name");
+				String type = ifile.getStringValue("rabbit_robot"+k, "type");
+				int xr = ifile.getIntValue("rabbit_robot"+k, "position_x");
+				int yr = ifile.getIntValue("rabbit_robot"+k, "position_y");
 				JSONObject jo = new JSONObject();
 				jo.put("name",st);
 				jo.put("x",xr+"");
-				jo.put("y",yr+"");				
+				jo.put("y",yr+"");
+				jo.put("type",type+"");
+				jar.add(jo);
+			}
+			for(int k = 1;k <= TestAppli.NBROBOT; k++){
+				String st = ifile.getStringValue("wolf_robot"+k, "name");
+				String type = ifile.getStringValue("wolf_robot"+k, "type");
+				int xr = ifile.getIntValue("wolf_robot"+k, "position_x");
+				int yr = ifile.getIntValue("wolf_robot"+k, "position_y");
+				JSONObject jo = new JSONObject();
+				jo.put("name",st);
+				jo.put("x",xr+"");
+				jo.put("y",yr+"");
+				jo.put("type",type+"");
 				jar.add(jo);
 			}
 			for(int k = 1;k <= 24; k++){
@@ -182,7 +196,7 @@ public class TestAppli {
 		if(TestAppli.SIMULATION == 0) { 
 			mymes = new JSONObject();
 			mymes.put("jar",jar);
-			mqttClient.publish("configuration/real_robot",mymes.toJSONString());			
+			mqttClient.publish("configuration/robot",mymes.toJSONString());
 		}
 		tf.initTurtle();
 		if(TestAppli.SIMULATION == 1) { 
