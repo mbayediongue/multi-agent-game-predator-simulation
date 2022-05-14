@@ -1,18 +1,19 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
 /* This model class defines the grid components */
 public class Grid {
-    private Situated[][] grid;    
+    private Situated[][] grid;
     protected final int rows;
     protected final int columns;
     protected int nbRobots;
     protected int nbObstacles;
     private Random rnd;
-    
+
     public Grid(int rows, int columns, int seed) {
         this.rows = rows;
         this.columns = columns;
@@ -24,18 +25,19 @@ public class Grid {
 
     public int[] locate() {
         int l=-1, c = -1;
-        boolean locationNotFound = true; 
+        boolean locationNotFound = true;
         while (locationNotFound) {
             l = rnd.nextInt(rows);
             c = rnd.nextInt(columns);
             if (grid[l][c].getComponentType() == ComponentType.empty) {
                 locationNotFound = false;
-                //grid[l][c] = nb; 
+                //grid[l][c] = nb;
             }
         }
         int [] result = {c,l};
         return result;
     }
+
     //vision du lapin
     public List<Situated> possibilities() {
         List<Situated> adjacentPos = new ArrayList<Situated>();
@@ -52,38 +54,64 @@ public class Grid {
     }
 
     //position du loup
-    public int[] locateWolf() {
-        int l=-1, c = -1;
-        boolean locationNotFound = true;
-        while (locationNotFound) {
-            l = rnd.nextInt(rows);
-            c = rnd.nextInt(columns);
-            if (grid[l][c].getComponentType() == ComponentType.wolf) {
-                locationNotFound = false;
-                //grid[l][c] = nb;
+    public int[] locateWolf(int x, int y) { // x et y sont les coordonnées du lapin passées en paramètres pour ne pas qu'il se retrouve lui même
+        //search for an other robot in the grid
+        int xWolf, yWolf;
+        int r = 0;
+        while(r<rows) {
+            for(int c=0; c<columns; c++) {
+                if(grid[r][c].getComponentType() == ComponentType.robot && (r!=x || c!=y) ) {
+                    xWolf =r;
+                    yWolf =c;
+                    int [] result = {r,c}; //attention peut être inversé ici
+                    return result;
+                }
+            }
+            r ++;
+        }
+        int [] result = {-1,-1};
+        return result;
+    }
+
+
+    //position du lapin
+    public int[] locateRabbit(int x, int y, int rayonDeVision) { // x et y sont les coordonnées du loup passées en paramètres pour ne pas qu'il se retrouve lui même
+        //search for an other robot in the grid
+        int xRabbit, yRabbit;
+        for( int r=0;r<rows;r++) {
+            for(int c=0; c<columns; c++) {
+                if((Math.sqrt(Math.pow((x-r+1),2)+Math.pow((y-c+1),2)))<=rayonDeVision &&
+                        grid[r][c].getComponentType() == ComponentType.robot && (r!=x || c!=y) ) {
+                    xRabbit =r;
+                    yRabbit =c;
+                    int [] result = {r,c}; //attention peut être inversé ici
+                    return result;
+                }
             }
         }
-        int [] result = {c,l};
+        int [] result = {-1,-1};
         return result;
     }
 
     //position de la nourriture
     public int[] locateFood() {
-        int l=-1, c = -1;
-        boolean locationNotFound = true;
-        while (locationNotFound) {
-            l = rnd.nextInt(rows);
-            c = rnd.nextInt(columns);
-            if (grid[l][c].getComponentType() == ComponentType.food) {
-                locationNotFound = false;
-                //grid[l][c] = nb;
+        //search for an other robot in the grid
+        int xFood, yFood;
+        int r = 0;
+        while(r<rows) {
+            for(int c=0; c<columns; c++) {
+                if(grid[r][c].getComponentType() == ComponentType.food) {
+                    xFood =r;
+                    yFood =c;
+                    int [] result = {r,c}; //attention peut être inversé ici
+                    return result;
+                }
             }
+            r ++;
         }
-        int [] result = {c,l};
+        int [] result = {-1,-1};
         return result;
     }
-
-
 
 
     public void initUnknown(){
@@ -97,7 +125,7 @@ public class Grid {
     public void display(ArrayList<Goal> gl){
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
-                Situated s = getCell(i, j); 
+                Situated s = getCell(i, j);
                 if(s.getComponentType() == ComponentType.empty) {
                     boolean tt = false;
                     for(Goal g : gl) {
@@ -113,15 +141,15 @@ public class Grid {
                     System.out.print("   " + s.display());
                 }
             }
-            System.out.println();       
+            System.out.println();
         }
     }
 
     public void display(){
         for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < columns; j++) 
+            for (int j = 0; j < columns; j++)
                 System.out.print("   " + getCell(i, j).display());
-            System.out.println();       
+            System.out.println();
         }
     }
 
@@ -141,7 +169,7 @@ public class Grid {
         ls[3] = null;
         Situated s;
         if(y>0){
-           s = grid[y-1][x];
+            s = grid[y-1][x];
             if(s.getComponentType() == ComponentType.empty) {
                 ls[0] = (EmptyCell)s;
             }
@@ -166,35 +194,35 @@ public class Grid {
         }
         return ls;
     }
-       
+
     public List<Situated> adjacentEmptyCell(int x, int y) {
         List<Situated> adjacentPos = new ArrayList<Situated>();
         Situated si;
         if(validCoordinate(x,y)){
             if (x > 0) {
                 si = grid[y][x-1];
-                if (si.getComponentType() == ComponentType.empty) 
-                    adjacentPos.add(si);            
-            } 
+                if (si.getComponentType() == ComponentType.empty)
+                    adjacentPos.add(si);
+            }
             if (y > 0) {
                 si = grid[y-1][x];
-                if (si.getComponentType() == ComponentType.empty) 
-                    adjacentPos.add(si);  
+                if (si.getComponentType() == ComponentType.empty)
+                    adjacentPos.add(si);
             }
             if (x < columns - 1) {
                 si = grid[y][x+1];
-                if (si.getComponentType() == ComponentType.empty) 
-                    adjacentPos.add(si);                          
+                if (si.getComponentType() == ComponentType.empty)
+                    adjacentPos.add(si);
             }
             if (y < rows - 1) {
                 si = grid[y+1][x];
-                if (si.getComponentType() == ComponentType.empty) 
-                    adjacentPos.add(si);  
+                if (si.getComponentType() == ComponentType.empty)
+                    adjacentPos.add(si);
             }
         }
         return adjacentPos;
     }
-    
+
 
     public int getRows() {
         return rows;
@@ -207,9 +235,9 @@ public class Grid {
     public Situated[][] getGrid() {
         return grid;
     }
-    
+
     public Situated getCell(int r, int c) {
-    	return grid[r][c];
+        return grid[r][c];
     }
 
     public String getCellsToString(int r, int c) {
@@ -221,7 +249,7 @@ public class Grid {
                 }
                 else if((r-1+i) >= rows) {
                     st += j + "," + i + ": null; ";
-                } 
+                }
                 else if((c-1+j)<0) {
                     st += j + "," + i + ": null; ";
                 }
@@ -230,14 +258,14 @@ public class Grid {
                 } else {
                     st += j + "," + i + ": " + grid[(r-1+i)][(c-1+j)].display() + "; ";
                 }
-            }    
+            }
         }
         st = st.substring(0, st.length() - 2);
         return st+"]";
     }
-    
+
     public boolean validCoordinate(int x, int y) {
-    	return (x >= 0 && y >= 0 && x < columns && y < rows);
+        return (x >= 0 && y >= 0 && x < columns && y < rows);
     }
 
     /**
@@ -248,29 +276,29 @@ public class Grid {
      * @param dy  destination ordinate of the situated component
      * @return true if the move has been done false else
      */
-	public boolean moveSituatedComponent(int ox, int oy, int dx, int dy) {
-		Situated sc = removeSituatedComponent(ox,oy);
-		if (sc != null) {
-			sc.setLocation(dx,dy);
-			putSituatedComponent(sc);
-			return true;
-		}
-		return false;
-	}
-	
-	public boolean putSituatedComponent(Situated sc) {		
-		if (validCoordinate(sc.getX(), sc.getY()) && grid[sc.getY()][sc.getX()].getComponentType() == ComponentType.empty) {
-			grid[sc.getY()][sc.getX()] = sc;
+    public boolean moveSituatedComponent(int ox, int oy, int dx, int dy) {
+        Situated sc = removeSituatedComponent(ox,oy);
+        if (sc != null) {
+            sc.setLocation(dx,dy);
+            putSituatedComponent(sc);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean putSituatedComponent(Situated sc) {
+        if (validCoordinate(sc.getX(), sc.getY()) && grid[sc.getY()][sc.getX()].getComponentType() == ComponentType.empty) {
+            grid[sc.getY()][sc.getX()] = sc;
             if(sc.getComponentType() == ComponentType.robot)
                 nbRobots++;
             else if(sc.getComponentType() == ComponentType.obstacle)
                 nbObstacles++;
-			return true;
-		}		
-    	return false;
-	}
+            return true;
+        }
+        return false;
+    }
 
-    public boolean forceSituatedComponent(Situated sc) {      
+    public boolean forceSituatedComponent(Situated sc) {
         if (validCoordinate(sc.getX(), sc.getY())) {
             grid[sc.getY()][sc.getX()] = sc;
             if(sc.getComponentType() == ComponentType.robot)
@@ -278,22 +306,22 @@ public class Grid {
             else if(sc.getComponentType() == ComponentType.obstacle)
                 nbObstacles++;
             return true;
-        }       
+        }
         return false;
     }
-	
-	public Situated removeSituatedComponent(int x, int y) {
-		if (validCoordinate(x, y) && grid[y][x].getComponentType() != ComponentType.empty) {
-			Situated sc = grid[y][x];
-			grid[y][x] = new EmptyCell(x, y);
+
+    public Situated removeSituatedComponent(int x, int y) {
+        if (validCoordinate(x, y) && grid[y][x].getComponentType() != ComponentType.empty) {
+            Situated sc = grid[y][x];
+            grid[y][x] = new EmptyCell(x, y);
             if(sc.getComponentType() == ComponentType.robot)
                 nbRobots--;
             else if(sc.getComponentType() == ComponentType.obstacle)
                 nbObstacles--;
-			return sc;
-		}		
-    	return null;
-	}
+            return sc;
+        }
+        return null;
+    }
 
     public List<Situated> get(ComponentType ct){
         List<Situated> result = new ArrayList<Situated>();
@@ -302,7 +330,7 @@ public class Grid {
                 Situated elt = grid[i][j];
                 if(elt.getComponentType() == ct)
                     result.add(elt);
-            }   
+            }
         }
         return result;
     }
