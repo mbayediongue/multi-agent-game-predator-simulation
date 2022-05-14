@@ -68,7 +68,7 @@ public class TestAppli {
 				jo.put("type",type+"");
 				jar.add(jo);
 			}
-			for(int k = 1;k <= TestAppli.NBROBOT; k++){
+
 				String st = ifile.getStringValue("wolf_robot"+k, "name");
 				String type = ifile.getStringValue("wolf_robot"+k, "type");
 				int xr = ifile.getIntValue("wolf_robot"+k, "position_x");

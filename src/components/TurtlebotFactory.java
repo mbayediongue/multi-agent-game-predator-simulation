@@ -10,6 +10,7 @@ import burger.RandomTurtlebot;
 import burger.RealTurtlebot;
 import burger.Orientation;
 import mqtt.Message;
+import org.json.simple.parser.JSONParser;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -168,7 +169,7 @@ public class TurtlebotFactory implements SimulationComponent {
 		clientMqtt.subscribe("configuration/field");
 	}
 
-	public Turtlebot factory(int id, String name, Message clientMqtt) {
+	public Turtlebot factory(int id, String name, Message clientMqtt, int x, int y, String type) {
 		if (mesRobots.containsKey(name))
 	    	return mesRobots.get(name);	    
 	    Turtlebot turtle;
@@ -184,7 +185,17 @@ public class TurtlebotFactory implements SimulationComponent {
 	    	if(debug == 1) {
 	    		System.out.println("Create simulated robot");
 	    	}
-	    	//turtle = new RandomTurtlebot(id, name, seed, field, clientMqtt, debug);
+			switch(type){
+
+				case "rabbit":
+					turtle = new RabbitTurtlebot(id, name, seed, field, clientMqtt, debug);
+					break;
+
+				case "wolf":
+					turtle = new WolfTurtlebot(id, name, seed, field, clientMqtt, debug);
+					break;
+			}
+	    	//turtle = new SmartTurtlebot(id, name, seed, field, clientMqtt, debug);
 	    	if(debug==2 && sttime != null) {
 	    		turtle.setLog(sttime);
 	    	}	    	
@@ -263,8 +274,9 @@ public class TurtlebotFactory implements SimulationComponent {
 		if( debug == 1) {
 			System.out.println(nbr);
 		}
+		JSONParser parser = new JSONParser();
 		for(int i = 2; i < nbr+2; i++) {
-			factory(i, turtlebotName + i, clientMqtt);
+			factory(i, turtlebotName + i, clientMqtt, ((JSONObject) jar.get(i)).get("x"), ((JSONObject) jar.get(i)).get("y"), ((JSONObject) jar.get(i)).get("type"));
 		}
 	}
 }

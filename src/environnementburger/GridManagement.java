@@ -50,6 +50,8 @@ public class GridManagement implements SimulationComponent {
 
 	public void initSubscribe() {
 		clientMqtt.subscribe("configuration/real_robot");
+		clientMqtt.subscribe("configuration/wolf_robot");
+		clientMqtt.subscribe("configuration/rabbit_robot");
 		clientMqtt.subscribe("configuration/obstacles");	
 		clientMqtt.subscribe("robot/nextPosition");	
 		clientMqtt.subscribe("configuration/nbRobot");	
@@ -234,6 +236,34 @@ public class GridManagement implements SimulationComponent {
 			RobotDescriptor rb = (RobotDescriptor)s;
 			JSONObject jo = new JSONObject();
 			jo.put("name", rb.getName());
+			jo.put("id", rb.getId()+"");
+			jo.put("x", rb.getX()+"");
+			jo.put("y", rb.getY()+"");
+			clientMqtt.publish(rb.getName()+"/position/init", jo.toJSONString());
+		}
+	}
+
+	public void publishInitRabbit() {
+		List<Situated> ls = grid.get(ComponentType.rabbitRobot);
+		for(Situated s:ls){
+			RabbitDescriptor rb = (RabbitDescriptor)s;
+			JSONObject jo = new JSONObject();
+			jo.put("name", rb.getName());
+			jo.put("type", rb.getType());
+			jo.put("id", rb.getId()+"");
+			jo.put("x", rb.getX()+"");
+			jo.put("y", rb.getY()+"");
+			clientMqtt.publish(rb.getName()+"/position/init", jo.toJSONString());
+		}
+	}
+
+	public void publishInitWolf() {
+		List<Situated> ls = grid.get(ComponentType.wolfRobot);
+		for(Situated s:ls){
+			WolfDescriptor rb = (WolfDescriptor)s;
+			JSONObject jo = new JSONObject();
+			jo.put("name", rb.getName());
+			jo.put("type", rb.getType());
 			jo.put("id", rb.getId()+"");
 			jo.put("x", rb.getX()+"");
 			jo.put("y", rb.getY()+"");
