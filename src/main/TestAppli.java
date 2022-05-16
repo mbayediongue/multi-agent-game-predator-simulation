@@ -77,7 +77,7 @@ public class TestAppli {
 		}
         else if (TestAppli.SIMULATION == 2){
             String rabbitName = ifile.getStringValue("rabbit_robot", "name");
-            if
+
 			int xr = ifile.getIntValue("rabbit_robot", "position_x");
             int yr = ifile.getIntValue("rabbit_robot", "position_y");
             JSONObject joRabbit = new JSONObject();
