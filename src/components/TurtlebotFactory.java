@@ -9,6 +9,7 @@ import burger.SmartTurtlebot;
 import burger.RandomTurtlebot;
 import burger.RealTurtlebot;
 import burger.Orientation;
+import burger.Rabbit;
 import mqtt.Message;
 
 import java.util.HashMap;
@@ -45,9 +46,6 @@ public class TurtlebotFactory implements SimulationComponent {
 	public void handleMessage(String topic, JSONObject content){
 		if (topic.contains("configuration/nbRobot")) {
            	initRobots(content);
-        }
-        else if (topic.contains("configuration/real_robot")) {
-           	initRealRobots(content);
         }
         else if (topic.contains("configuration/debug")) {
            	debug = Integer.parseInt((String)content.get("debug"));
@@ -151,7 +149,6 @@ public class TurtlebotFactory implements SimulationComponent {
 
 	public void initSubscribe() {		
 		clientMqtt.subscribe("configuration/nbRobot");
-		clientMqtt.subscribe("configuration/real_robot");
 		clientMqtt.subscribe("configuration/debug");
 		clientMqtt.subscribe("configuration/display");
 		clientMqtt.subscribe("configuration/simulation");
@@ -168,7 +165,9 @@ public class TurtlebotFactory implements SimulationComponent {
 	    	if(debug == 1) {
 	    		System.out.println("Create real robot");
 	    	}
-	    	turtle = new RealTurtlebot(id, name, seed, field, clientMqtt, debug);
+	    	//turtle = new RealTurtlebot(id, name, seed, field, clientMqtt, debug);
+	    	turtle =new RealTurtlebot(id,  name, seed,field, clientMqtt, debug);
+
 	    	if(debug==2 && sttime != null) {
 	    		turtle.setLog(sttime);
 	    	}
@@ -176,7 +175,7 @@ public class TurtlebotFactory implements SimulationComponent {
 	    	if(debug == 1) {
 	    		System.out.println("Create simulated robot");
 	    	}
-	    	turtle = new SmartTurtlebot(id, name, seed, field, clientMqtt, debug);
+	    	turtle = new Rabbit(id, name, seed, field, clientMqtt, debug);
 	    	//turtle = new RandomTurtlebot(id, name, seed, field, clientMqtt, debug);
 	    	if(debug==2 && sttime != null) {
 	    		turtle.setLog(sttime);
@@ -220,24 +219,13 @@ public class TurtlebotFactory implements SimulationComponent {
 		return mesRobots.get(idRobot);
 	}
 
-	public void initRobots(JSONObject content) {
-		int nbr = Integer.parseInt((String) content.get("nbRobot"));
+	public void initRobots(JSONObject nbRobot) {
+		int nbr = Integer.parseInt((String) nbRobot.get("nbRobot"));
 		if( debug == 1) {
 			System.out.println(nbr);
 		}
 		for (int i = 2; i < 2 + nbr; i++) {
 			factory(i, turtlebotName + i, clientMqtt);
 		}
-	}
-
-	public void initRealRobots(JSONObject content) {
-		JSONArray jar = (JSONArray)content.get("jar");
-		int nbr = jar.size();
-		if( debug == 1) {
-			System.out.println(nbr);
-		}
-        for(int i = 2; i < nbr+2; i++) {
-        	factory(i, turtlebotName + i, clientMqtt);        	
-		}			
 	}
 }

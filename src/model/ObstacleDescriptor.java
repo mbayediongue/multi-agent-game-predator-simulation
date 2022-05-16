@@ -2,7 +2,7 @@ package model;
 
 import org.json.simple.JSONObject;
 
-public class ObstacleDescriptor extends EntityDescriptor {
+public class ObstacleDescriptor extends EntityDescriptor implements Situated{
 	
 	public ObstacleDescriptor (int [] location) {
 		super(location);

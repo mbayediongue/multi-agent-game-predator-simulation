@@ -1,5 +1,4 @@
 package burger;
-
 import model.ComponentType;
 import model.Situated;
 import components.Turtlebot;
@@ -17,12 +16,20 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class SmartTurtlebot extends Turtlebot{
+public class Rabbit extends Turtlebot{
 	protected Random rnd;
 	protected Grid grid;
-
-	public SmartTurtlebot(int id, String name, int seed, int field, Message clientMqtt, int debug) {
+	
+	// added
+	public double waterLevel=20;
+	public double foodLevel=5;
+	public double wolfWeight=5;
+	//public int timeSinceLastGettingOut;
+	
+	//end 
+	public Rabbit(int id, String name, int seed, int field, Message clientMqtt, int debug) {
 		super(id, name, seed, field, clientMqtt, debug);
+		
 		rnd = new Random(seed);	
 	}
 
@@ -85,7 +92,11 @@ public class SmartTurtlebot extends Turtlebot{
         	}
         } else if (topic.contains(name+"/action")) {
     	    int stepr = Integer.parseInt((String)content.get("step"));
-        	move(stepr);
+        	//move(stepr);
+    	    wellBeing(stepr);
+    	    //this.foodLevel-=1;
+    	    //this.waterLevel-=1;
+    	    
         } else if (topic.contains("inform/grid/init")) {
         	int rows = Integer.parseInt((String)content.get("rows"));
         	int columns = Integer.parseInt((String)content.get("columns"));
@@ -171,6 +182,7 @@ public class SmartTurtlebot extends Turtlebot{
 	}
 
 	public void move(int step) {
+		System.out.println("\n Move n");
 		String actionr = "move_forward";
 		String result = x + "," + y + "," + orientation + "," + grid.getCellsToString(y,x) + ",";
 		for(int i = 0; i < step; i++) {
@@ -320,5 +332,146 @@ public class SmartTurtlebot extends Turtlebot{
 
 	public void moveBackward() {
 		
+	}
+	
+	
+	// Added part
+	public void wellBeing(int step) {
+
+		int[] wolf =grid.locateWolf(x, y);
+		int[] food= grid.locateFood();
+		int xFood=food[0], yFood=food[1];
+		int xWolf=wolf[0];
+		int yWolf=wolf[1];
+		System.out.println("\nFood: (xFood :"+xFood+", yFood :"+yFood+")\n");
+		System.out.println("\nWolf: (xWolf :"+xWolf+", yWolf:"+yWolf+")\n");
+		System.out.println("Rabbit: (xRabiit :"+x+", yRabbit :"+y+")\n");
+		int xk=x;
+		int yl=y;
+		double foodLevel=this.foodLevel;
+		double wolfWeight=this.wolfWeight;
+		if( xFood==-1) // food place is not found yet
+			foodLevel=0; // then food is not considered in the objective function
+		
+		if(xWolf==-1) // the wolf place is not found yet
+			wolfWeight=0;// then is not considered in the objective function
+		
+		String actionr = "move_forward";
+		String result = x + "," + y + "," + orientation + "," + grid.getCellsToString(y,x) + ",";
+		for(int ii = 0; ii < step; ii++) {
+			//double bestWellBeing= wolfWeight*dist(xWolf, yWolf, xk, yl)-
+			//		(foodLevel)*dist(xFood, yFood, xk, yl); 
+			double bestWellBeing= Double.NEGATIVE_INFINITY ;//foodLevel(foodLevel)*dist(xFood, yFood, xk, yl); 
+			EmptyCell[] ec = grid.getAdjacentEmptyCell(xk,yl);
+			int bestMove=-1;
+			for(int k=0; k<4; k++) {
+				if( ec[k]!=null) {
+					if (k==0) {
+						xk=x-1;
+						yl=y;
+					}
+					else if (k==1) {
+						yl=y-1;
+						xk=x;
+					}
+					else if (k==2) {
+						xk=x+1;
+						yl=y;
+					}
+					else {
+						yl=y+1;
+						xk=x;
+					}
+					double wellBeing= wolfWeight*dist(xWolf, yWolf, xk, yl)-
+							(foodLevel)*dist(xFood, yFood, xk, yl); 
+					if (wellBeing > bestWellBeing) {
+						bestWellBeing=wellBeing;
+						bestMove=k;
+					}
+					
+				}
+			}
+			ec = grid.getAdjacentEmptyCell(x,y);
+			double d = Math.random();
+			if (xFood==-1 && xWolf==-1) // if food place and wolf position are not found then random walk
+				d=0.0;
+			if( d<=0.3) {
+				bestMove=rnd.nextInt(4);
+				while( ec[bestMove]==null)
+					bestMove=rnd.nextInt(4);
+			}
+				
+			
+			System.out.println("\n Best wb: "+bestWellBeing+"\n");
+			if (bestMove==0) {
+				if(orientation == Orientation.up) {
+					moveLeft(1);
+					actionr = "turn_left";
+				} if(orientation == Orientation.down) {
+					moveRight(1);
+					actionr = "turn_right";
+				} if(orientation==Orientation.right) {
+					moveRight(2); // demi-tour (about turn)
+					actionr = "turn_right";
+				} if(orientation==Orientation.left)
+					moveForward();
+			}
+			else if (bestMove==1) {
+				if(orientation == Orientation.up) {
+					moveRight(2); // demi-tour (about turn)
+					actionr = "turn_right";
+				} if(orientation == Orientation.down)
+					moveForward();
+				if(orientation==Orientation.right) {
+					moveRight(1);
+					actionr = "turn_right";
+				} if(orientation==Orientation.left) {
+					moveLeft(1);
+					actionr = "turn_left";
+				}
+			}
+			else if (bestMove==2) {
+				if(orientation == Orientation.up) {
+					moveRight(1);
+					actionr = "turn_right";
+				} if(orientation == Orientation.down) {
+					moveLeft(1);
+					actionr = "turn_left";
+				}
+				if(orientation==Orientation.right)
+					moveForward();
+				if(orientation==Orientation.left) {
+					moveRight(2); // demi-tour (about turn)
+					actionr = "turn_right";
+				}
+			}
+			else if(bestMove==3) {
+				if(orientation == Orientation.up)
+					moveForward();
+				if(orientation == Orientation.down) {
+					moveRight(2); // demi-tour (about turn)
+					actionr = "turn_right";
+				} if(orientation==Orientation.right) {
+					moveLeft(1);
+					actionr = "turn_right";
+				} if(orientation==Orientation.left) {
+					moveRight(1);
+					actionr = "turn_left";
+				}
+			}
+		}
+		if(debug==2){
+			try{
+				writer.write(result + actionr); 
+				writer.newLine();
+				writer.flush();
+			} catch(IOException ioe){
+				System.out.println(ioe);
+			}
+		}
+	}
+	
+	public int dist(int x1, int y1, int x2, int y2) {
+		return (x1-x2)^2+(y1-y2)^2;
 	}
 }

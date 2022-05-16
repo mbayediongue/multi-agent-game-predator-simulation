@@ -12,7 +12,7 @@ public class Grid {
     protected int nbRobots;
     protected int nbObstacles;
     private Random rnd;
-
+    
     public Grid(int rows, int columns, int seed) {
         this.rows = rows;
         this.columns = columns;
@@ -257,4 +257,32 @@ public class Grid {
         }
         return result;
     }
+    
+    public int[] locateWolf(int x, int y){
+        for(int i=0; i < rows; i++) {
+            for(int j=0; j < columns; j++) {
+        		if( (i!=x || j!=y) && (grid[i][j].getComponentType() == ComponentType.robot)) {
+        	    	int [] result = {i,j};
+        	    	return result;
+        		}
+            }   
+        }
+    	int [] result = {-1,-1};
+    	return result;
+    }
+    
+    public int[] locateFood(){
+        for(int i=0; i < rows; i++) {
+            for(int j=0; j < columns; j++) {
+
+        		if( grid[i][j].getComponentType() == ComponentType.goal){
+        	    	int [] result = {i,j};
+        	    	return result;
+        		}
+            }   
+        }
+    	int [] result = {-1,-1};
+    	return result;
+    }
+      
 }

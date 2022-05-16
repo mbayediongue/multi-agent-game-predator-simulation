@@ -3,6 +3,7 @@ package components;
 import model.ComponentType;
 import model.Situated;
 import burger.Orientation;
+import burger.Rabbit;
 import mqtt.Message;
 import model.ObstacleDescriptor;
 import model.RobotDescriptor;
@@ -79,6 +80,8 @@ public abstract class Turtlebot implements Situated, SimulationComponent {
 	protected abstract void init() ;
 
 	public ComponentType getComponentType() {
+		if (this instanceof Rabbit)
+			return ComponentType.robot;
 		return ComponentType.robot;
 	}
 
