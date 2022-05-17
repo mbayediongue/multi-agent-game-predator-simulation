@@ -37,28 +37,6 @@ public class Mqtt extends Message implements MqttCallback {
         }
     }
 
-    public Mqtt(String name, int debug, String broker) {
-        super(name, debug);
-        this.broker = broker;
-        persistence = new MemoryPersistence();        
-        MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
-        mqttConnectOptions.setAutomaticReconnect(true);
-        mqttConnectOptions.setCleanSession(true);
-        mqttConnectOptions.setKeepAliveInterval(10);
-        //mqttConnectOptions.setUserName("vclydlgd");
-        //mqttConnectOptions.setPassword("TpzXBXjXI7yDsqdsded".toCharArray());
-
-        try {
-            mqttClient = new MqttClient(broker, name);
-            mqttClient.setCallback(this);
-            mqttClient.connect(mqttConnectOptions);
-
-        } catch (MqttException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-    }
-
     @Override
     public void connectionLost(Throwable cause) {
         if(debug == 1) {
@@ -83,6 +61,7 @@ public class Mqtt extends Message implements MqttCallback {
         int pubQos = 1;
         MqttMessage mqttMessage = new MqttMessage(publishMessage.getBytes());
         mqttMessage.setQos(pubQos);
+        
         try {            
             mqttClient.publish(topic, mqttMessage);            
         } catch (MqttException e) {

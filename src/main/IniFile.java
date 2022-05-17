@@ -37,9 +37,7 @@ public class IniFile {
     //return ini.get(section, prop);
     String c =  prefs.node(section).get(prop, null);
     Color mycolor;
-    String[] ccolrgb = c.split(",");
-    mycolor = new Color(Integer.parseInt(ccolrgb[0]),Integer.parseInt(ccolrgb[1]),Integer.parseInt(ccolrgb[2]));
-    /*switch(c) {
+    switch(c) {
       case "blue":
         mycolor = Color.BLUE;
         break;
@@ -57,7 +55,7 @@ public class IniFile {
         break;
       default:
           mycolor = Color.WHITE;
-    }*/
+    }
     return mycolor;
   }
 

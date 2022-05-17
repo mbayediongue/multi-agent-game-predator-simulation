@@ -1,10 +1,9 @@
+
 package burger;
 
-import model.ComponentType;
 import model.Situated;
 import components.Turtlebot;
 import model.EmptyCell;
-import model.UnknownCell;
 import mqtt.Message;
 import java.util.Random;
 import model.ObstacleDescriptor;
@@ -17,16 +16,18 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class RandomTurtlebot extends Turtlebot{
+public class FoodTurtlebot extends Turtlebot{
 	protected Random rnd;
 	protected List<Situated> grid;
 	protected int rows;
 	protected int columns;
+	protected int ID_food=4;
 
-	public RandomTurtlebot(int id, String name, int seed, int field, Message clientMqtt, int debug) {
+	public FoodTurtlebot(int id, String name, int seed, int field, Message clientMqtt, int debug) {
 		super(id, name, seed, field, clientMqtt, debug);
 		rnd = new Random(seed);
 		grid = new ArrayList<Situated>();	
+		id=ID_food;
 	}
 
 	protected void init() {
@@ -156,123 +157,6 @@ public class RandomTurtlebot extends Turtlebot{
 	}
 
 	public void move(int step) {	
-		String actionr = "move_forward";
-		String result = x + "," + y + "," + orientation + ",";
-		for(int i = 0; i < step; i++) {
-			EmptyCell[] ec = new EmptyCell[4];
-			ec[0] = null;
-        	ec[1] = null;
-        	ec[2] = null;
-        	ec[3] = null;
-			//System.out.println("myRobot (" + columns + "," + rows + "): " + getX() + " " + getY());
-			String st = "[";
-			for(Situated s:grid){
-				//System.out.println("neighbour (" + s.getComponentType() + "): " + s.getX() + " " + s.getY());
-				if(getX() > 0 && s.getX() == getX()-1 && s.getY()==getY()) {
-					if(s.getComponentType() == ComponentType.empty) {
-						ec[2] = (EmptyCell)s;
-					} else {
-						ec[2] = null;		
-					}
-				}
-
-				if(getX() < columns-1 && s.getX() == getX()+1 && s.getY()==getY()) {
-					if(s.getComponentType() == ComponentType.empty) {
-						ec[3] = (EmptyCell)s;
-					} else {
-						ec[3] = null;		
-					}
-				}
-
-				if(getY() < rows-1 && s.getY() == getY()+1 && s.getX()==getX()) {
-					if(s.getComponentType() == ComponentType.empty) {
-						ec[1] = (EmptyCell)s;
-					} else {
-						ec[1] = null;		
-					}
-				}
-
-				if(getY() > 0 && s.getY() == getY()-1 && s.getX()==getX()) {
-					if(s.getComponentType() == ComponentType.empty) {
-						ec[0] = (EmptyCell)s;
-					} else {
-						ec[0] = null;		
-					}
-				}
-				st+= s.getX() + "," + s.getY() + ": " + s.display() + "; ";
-			}
-			st = st.substring(0, st.length() - 2);        
-			result += st + ",";
-			if(orientation == Orientation.up) {
-				if(ec[3] != null) 
-					moveForward();
-				else {
-					//randomOrientation();
-					double d = Math.random();
-					if(d < 0.5) {
-						moveLeft(1);
-						actionr = "turn_left";
-					} else {
-						moveRight(1);
-						actionr = "turn_right";
-					}
-				}
-			}
-			else if(orientation == Orientation.down) {
-				if(ec[2] != null) 
-					moveForward();
-				else {
-					//randomOrientation();
-					double d = Math.random();
-					if(d < 0.5) {
-						moveLeft(1);
-						actionr = "turn_left";
-					} else {
-						moveRight(1);
-						actionr = "turn_right";
-					}
-				}
-			}
-			else if(orientation == Orientation.right) {
-				if(ec[1] != null) 
-					moveForward();
-				else {
-					//randomOrientation();
-					double d = Math.random();
-					if(d < 0.5) {
-						moveLeft(1);
-						actionr = "turn_left";
-					} else {
-						moveRight(1);
-						actionr = "turn_right";
-					}
-				}
-			}
-			else if(orientation == Orientation.left) {
-				if(ec[0] != null) 
-					moveForward();
-				else {
-					//randomOrientation();
-					double d = Math.random();
-					if(d < 0.5) {
-						moveLeft(1);
-						actionr = "turn_left";
-					} else {
-						moveRight(1);
-						actionr = "turn_right";
-					}
-				}
-			}
-		}
-		if(debug==2){
-			try{
-				writer.write(result + actionr); 
-				writer.newLine();
-				writer.flush();
-			} catch(IOException ioe){
-				System.out.println(ioe);
-			}
-		}
 	}
 
 	public void moveLeft(int step) {

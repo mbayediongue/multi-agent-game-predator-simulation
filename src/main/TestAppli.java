@@ -6,14 +6,13 @@ import mqtt.Mqtt;
 import mqtt.NoMqtt;
 import java.awt.Color;
 import org.json.simple.JSONObject;
-import org.json.simple.JSONArray;
 import components.TurtlebotFactory;
 import java.io.File;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;  
+import java.time.format.DateTimeFormatter;  
 
 public class TestAppli {
-
+	
 	protected static int WAITTIME;
 	protected static int MQTT;
 	protected static int DISPLAY;
@@ -21,8 +20,6 @@ public class TestAppli {
 	protected static int SIMULATION;
 	protected static int DISPLAYWIDTH;
 	protected static int DISPLAYHEIGHT;
-	protected static int DISPLAY_X;
-	protected static int DISPLAY_Y;
 	protected static String DISPLAYTITLE;
 	protected static int NBROBOT;
 	protected static int NBOBSTACLE;
@@ -34,13 +31,12 @@ public class TestAppli {
 	protected static Color COLORGOAL;
 	protected static Color COLOROBSTACLE;
 	protected static Color COLOROTHER;
-	protected static Color COLORUNKNOWN;
-
+	protected static int NBSTEP;//added
+	
 	public static void main(String[] args) throws Exception {
 		String sttime = "log-"+java.time.LocalDateTime.now();
 		File f = new File(sttime);
 		f.mkdir();
-		//IniFile ifile= new IniFile("prop_real.ini");
 		IniFile ifile= new IniFile("prop.ini");
 		TestAppli.MQTT = ifile.getIntValue("configuration","mqtt");
 		TestAppli.WAITTIME = ifile.getIntValue("configuration","waittime");
@@ -50,66 +46,20 @@ public class TestAppli {
 		TestAppli.NBROBOT =  ifile.getIntValue("configuration", "robot");
 		TestAppli.NBOBSTACLE =  ifile.getIntValue("configuration", "obstacle");
 		TestAppli.SEED =  ifile.getIntValue("configuration", "seed");
+		TestAppli.NBSTEP=  ifile.getIntValue("configuration", "step");
 		TestAppli.FIELD =  ifile.getIntValue("configuration", "field");
 		TestAppli.ROWS =  ifile.getIntValue("environment", "rows");
 		TestAppli.COLUMNS =  ifile.getIntValue("environment", "columns");
-		JSONArray jar = new JSONArray();
-		JSONArray jao = new JSONArray();
-		if(TestAppli.SIMULATION == 0) {
-			for(int k = 1;k <= TestAppli.NBROBOT; k++){
-				String st = ifile.getStringValue("real_robot"+k, "name");
-				int xr = ifile.getIntValue("real_robot"+k, "position_x");
-				int yr = ifile.getIntValue("real_robot"+k, "position_y");
-				JSONObject jo = new JSONObject();
-				jo.put("name",st);
-				jo.put("x",xr+"");
-				jo.put("y",yr+"");
-				jar.add(jo);
-			}
-			for(int k = 1;k <= 24; k++){
-				int xo = ifile.getIntValue("obstacle"+k, "x");
-				int yo = ifile.getIntValue("obstacle"+k, "y");
-				JSONObject jo = new JSONObject();
-				jo.put("x",xo+"");
-				jo.put("y",yo+"");
-				jao.add(jo);
-			}
-		}
-        else if (TestAppli.SIMULATION == 2){
-            String rabbitName = ifile.getStringValue("rabbit_robot", "name");
-            if
-			int xr = ifile.getIntValue("rabbit_robot", "position_x");
-            int yr = ifile.getIntValue("rabbit_robot", "position_y");
-            JSONObject joRabbit = new JSONObject();
-			joRabbit.put("type","rabbit");
-            joRabbit.put("name",rabbitName);
-            joRabbit.put("x",xr+"");
-            joRabbit.put("y",yr+"");
-            jar.add(joRabbit);
-
-            String wolfName = ifile.getStringValue("wolf_robot", "name");
-            int xw = ifile.getIntValue("wolf_robot", "position_x");
-            int yw = ifile.getIntValue("wolf_robot", "position_y");
-            JSONObject joWolf = new JSONObject();
-			joWolf.put("type","wolf");
-			joWolf.put("name",wolfName);
-            joWolf.put("x",xw+"");
-            joWolf.put("y",yw+"");
-            jar.add(joWolf);
-        }
-		if(TestAppli.DISPLAY == 1) {
+		if(TestAppli.DISPLAY == 1) { 
 			TestAppli.DISPLAYWIDTH =  ifile.getIntValue("display","width");
 			TestAppli.DISPLAYHEIGHT = ifile.getIntValue("display","height");
-			TestAppli.DISPLAY_X =  ifile.getIntValue("display","x");
-			TestAppli.DISPLAY_Y = ifile.getIntValue("display","y");
 			TestAppli.DISPLAYTITLE = ifile.getStringValue("display","title");
 			TestAppli.COLORROBOT = ifile.getColorValue("color","robot");
 			TestAppli.COLORGOAL = ifile.getColorValue("color","goal");
 			TestAppli.COLOROBSTACLE = ifile.getColorValue("color","obstacle");
 			TestAppli.COLOROTHER = ifile.getColorValue("color","other");
-			TestAppli.COLORUNKNOWN = ifile.getColorValue("color","unknown");
 		}
-
+		
 		Message mqttClient;
 		if(TestAppli.MQTT == 1) {
 			mqttClient = new Mqtt("android", TestAppli.DEBUG);
@@ -119,12 +69,12 @@ public class TestAppli {
 		}
 
 		GridManagement env = new GridManagement();
-		env.setMessage(mqttClient);
-		mqttClient.setAppli(env);
-		env.initSubscribe();
-
+		env.setMessage(mqttClient);		
+		mqttClient.setAppli(env);		
+		env.initSubscribe();	
+		
 		TurtlebotFactory tf = new TurtlebotFactory(sttime);
-		tf.setMessage(mqttClient);
+		tf.setMessage(mqttClient);		
 		mqttClient.setAppli(tf);
 		tf.initSubscribe();
 
@@ -133,32 +83,26 @@ public class TestAppli {
 		mqttClient.publish("configuration/display",mymes.toJSONString());
 		mymes = new JSONObject();
 		mymes.put("debug", TestAppli.DEBUG+"");
-		mqttClient.publish("configuration/debug",mymes.toJSONString());
+		mqttClient.publish("configuration/debug",mymes.toJSONString());	
 		mymes = new JSONObject();
 		mymes.put("waittime", TestAppli.WAITTIME+"");
-		mqttClient.publish("configuration/waittime",mymes.toJSONString());
+		mqttClient.publish("configuration/waittime",mymes.toJSONString());	
 		mymes = new JSONObject();
 		mymes.put("simulation", TestAppli.SIMULATION+"");
-		mqttClient.publish("configuration/simulation",mymes.toJSONString());
+		mqttClient.publish("configuration/simulation",mymes.toJSONString());	
 		mymes = new JSONObject();
 		mymes.put("seed", TestAppli.SEED+"");
 		mqttClient.publish("configuration/seed",mymes.toJSONString());
 		mymes = new JSONObject();
 		mymes.put("field", TestAppli.FIELD+"");
 		mqttClient.publish("configuration/field",mymes.toJSONString());
-		if(TestAppli.DISPLAY == 1) {
+		if(TestAppli.DISPLAY == 1) { 
 			mymes = new JSONObject();
 			mymes.put("displaywidth", TestAppli.DISPLAYWIDTH+"");
 			mqttClient.publish("display/width",mymes.toJSONString());
 			mymes = new JSONObject();
-			mymes.put("displayheight", TestAppli.DISPLAYHEIGHT+"");
+			mymes.put("displayheight", TestAppli.DISPLAYHEIGHT+"");	
 			mqttClient.publish("display/height",mymes.toJSONString());
-			mymes = new JSONObject();
-			mymes.put("display_x", TestAppli.DISPLAY_X+"");
-			mqttClient.publish("display/x",mymes.toJSONString());
-			mymes = new JSONObject();
-			mymes.put("display_y", TestAppli.DISPLAY_Y+"");
-			mqttClient.publish("display/y",mymes.toJSONString());
 			mymes = new JSONObject();
 			mymes.put("displaytitle", TestAppli.DISPLAYTITLE);
 			mqttClient.publish("display/title",mymes.toJSONString());
@@ -174,59 +118,28 @@ public class TestAppli {
 			mymes = new JSONObject();
 			mymes.put("color", Integer.toString(TestAppli.COLOROTHER.getRGB()));
 			mqttClient.publish("display/other",mymes.toJSONString());
-			mymes = new JSONObject();
-			mymes.put("color", Integer.toString(TestAppli.COLORUNKNOWN.getRGB()));
-			mqttClient.publish("display/unknown",mymes.toJSONString());
 		}
 		mymes = new JSONObject();
 		mymes.put("rows", TestAppli.ROWS+"");
-		mqttClient.publish("environment/rows",mymes.toJSONString());
+		mqttClient.publish("environment/rows",mymes.toJSONString());	
 		mymes = new JSONObject();
 		mymes.put("columns", TestAppli.COLUMNS+"");
 		mqttClient.publish("environment/columns",mymes.toJSONString());
 		mymes = new JSONObject();
 		mymes.put("nbObstacle", TestAppli.NBOBSTACLE+"");
-		mqttClient.publish("configuration/nbObstacle", mymes.toJSONString());
-		if(TestAppli.SIMULATION == 0) {
-			mymes = new JSONObject();
-			mymes.put("jao",jao);
-			mqttClient.publish("configuration/obstacles",mymes.toJSONString());
-		}
+		mqttClient.publish("configuration/nbObstacle", mymes.toJSONString());		
 		mymes = new JSONObject();
 		mymes.put("columns", TestAppli.COLUMNS+"");
 		mymes.put("rows", TestAppli.ROWS+"");
-		mqttClient.publish("environment/grid",mymes.toJSONString());
-		if(TestAppli.SIMULATION == 1) {
-			mymes = new JSONObject();
-			mymes.put("nbRobot", TestAppli.NBROBOT+"");
-			mqttClient.publish("configuration/nbRobot", mymes.toJSONString());
-		}
-		else if(TestAppli.SIMULATION == 0) {
-			mymes = new JSONObject();
-			mymes.put("jar",jar);
-			mqttClient.publish("configuration/real_robot",mymes.toJSONString());
-		}
-        else if(TestAppli.SIMULATION == 2){
-            mymes = new JSONObject();
-            mymes.put("jar",jar);
-            mqttClient.publish("configuration/wolf_rabbit_robot",mymes.toJSONString());
-        }
+		mqttClient.publish("environment/grid",mymes.toJSONString());	
+		mymes = new JSONObject();
+		mymes.put("nbRobot", TestAppli.NBROBOT+"");
+		mqttClient.publish("configuration/nbRobot", mymes.toJSONString());
 		tf.initTurtle();
-		if(TestAppli.SIMULATION == 1) {
-			env.publishInitRobot();
-		}
-		else if(TestAppli.SIMULATION == 0) {
-			env.publishInitRealRobot();
-		}
-        else if(TestAppli.SIMULATION == 2) {
-            env.publishInitRobot();
-        }
+		env.publishInitRobot();
 		env.publishGridSize();
 		tf.initTurtleGrid();
-		if(TestAppli.SIMULATION == 0) {
-			env.initLEDTable();
-		}
-		tf.schedule(100);
+		tf.schedule(TestAppli.NBSTEP);	
 		/*tf.publishRobotInit();
 		try {
 		    Thread.sleep(TestAppli.WAITTIME);

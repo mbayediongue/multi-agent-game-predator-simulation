@@ -2,7 +2,7 @@ package model;
 
 import org.json.simple.JSONObject;
 
-public class ObstacleDescriptor extends EntityDescriptor {
+public class ObstacleDescriptor extends EntityDescriptor implements Situated{
 	
 	public ObstacleDescriptor (int [] location) {
 		super(location);
@@ -13,7 +13,7 @@ public class ObstacleDescriptor extends EntityDescriptor {
 	}
 
 	public String display(){
-		return "1";
+		return "O"; // ";"
 	}
 
 	public String toString() {

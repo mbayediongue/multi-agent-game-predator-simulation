@@ -1,11 +1,17 @@
 package components;
 
-import burger.*;
 import mqtt.Message;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import burger.SmartTurtlebot;
+import burger.WolfTurtlebot;
+import burger.RandomTurtlebot;
+import burger.RealTurtlebot;
+import burger.FoodTurtlebot;
+import burger.Orientation;
+import burger.Rabbit;
 import mqtt.Message;
 
 import java.util.HashMap;
@@ -26,6 +32,11 @@ public class TurtlebotFactory implements SimulationComponent {
 	protected int field;
 	protected String sttime;
 	
+	// added instances:
+	protected int field_wolf=1;
+	protected int ID_robot=2;
+	protected int ID_food=4;
+	
 	public TurtlebotFactory(String sttime) {
 		this.simulation = 0;
 		this.debug = 0;
@@ -43,12 +54,6 @@ public class TurtlebotFactory implements SimulationComponent {
 		if (topic.contains("configuration/nbRobot")) {
            	initRobots(content);
         }
-        else if (topic.contains("configuration/real_robot")) {
-           	initRealRobots(content);
-        }
-		else if (topic.contains("configuration/wolf_rabbit_robot")) {
-			initWolfRabbitRobots(content);
-		}
         else if (topic.contains("configuration/debug")) {
            	debug = Integer.parseInt((String)content.get("debug"));
         }
@@ -151,8 +156,6 @@ public class TurtlebotFactory implements SimulationComponent {
 
 	public void initSubscribe() {		
 		clientMqtt.subscribe("configuration/nbRobot");
-		clientMqtt.subscribe("configuration/real_robot");
-		clientMqtt.subscribe("configuration/wolf_rabbit_robot");
 		clientMqtt.subscribe("configuration/debug");
 		clientMqtt.subscribe("configuration/display");
 		clientMqtt.subscribe("configuration/simulation");
@@ -169,7 +172,9 @@ public class TurtlebotFactory implements SimulationComponent {
 	    	if(debug == 1) {
 	    		System.out.println("Create real robot");
 	    	}
-	    	turtle = new RealTurtlebot(id, name, seed, field, clientMqtt, debug);
+	    	//turtle = new RealTurtlebot(id, name, seed, field, clientMqtt, debug);
+	    	turtle =new RealTurtlebot(id,  name, seed,field, clientMqtt, debug);
+
 	    	if(debug==2 && sttime != null) {
 	    		turtle.setLog(sttime);
 	    	}
@@ -177,8 +182,22 @@ public class TurtlebotFactory implements SimulationComponent {
 	    	if(debug == 1) {
 	    		System.out.println("Create simulated robot");
 	    	}
-	    	turtle = new SmartTurtlebot(id, name, seed, field, clientMqtt, debug);
+	    	
+	    	if( ID_robot==2) {
+	    		turtle = new Rabbit(id, name, seed, field, clientMqtt, debug);
+	    		ID_robot+=1;
+	    	}
 	    	//turtle = new RandomTurtlebot(id, name, seed, field, clientMqtt, debug);
+	    	else if (ID_robot==3) {
+	    		turtle = new WolfTurtlebot(id, name, seed, field_wolf, clientMqtt, debug, 2);
+	    		ID_robot+=1;
+	    	}
+	    	else if (ID_robot==4) {
+	    		turtle = new FoodTurtlebot(	ID_food, name, seed, field, clientMqtt, debug);
+	    		ID_robot+=1;
+	    	}
+	    	else
+	    		turtle = new RandomTurtlebot(id, name, seed, field, clientMqtt, debug);
 	    	if(debug==2 && sttime != null) {
 	    		turtle.setLog(sttime);
 	    	}	    	
@@ -187,49 +206,6 @@ public class TurtlebotFactory implements SimulationComponent {
 	    return turtle;
 	}
 
-	public Turtlebot factory(int id, String name, Message clientMqtt, String type, int x, int y) {
-		if (mesRobots.containsKey(name))
-			return mesRobots.get(name);
-		Turtlebot turtle;
-		if(simulation == 0) {
-			if(debug == 1) {
-				System.out.println("Create real robot");
-			}
-			turtle = new RealTurtlebot(id, name, seed, field, clientMqtt, debug);
-			if(debug==2 && sttime != null) {
-				turtle.setLog(sttime);
-			}
-		} else if(simulation == 1){
-			if(debug == 1) {
-				System.out.println("Create simulated robot");
-			}
-			turtle = new SmartTurtlebot(id, name, seed, field, clientMqtt, debug);
-			//turtle = new RandomTurtlebot(id, name, seed, field, clientMqtt, debug);
-			if(debug==2 && sttime != null) {
-				turtle.setLog(sttime);
-			}
-		}
-		else{
-			if(debug == 1) {
-				System.out.println("Create wolf rabbit robots");
-			}
-			if (type.equals("wolf")) {
-				turtle = new WolfTurtlebot(id, name, seed, field, clientMqtt, debug,2);
-			} else if (type.equals("rabbit")){
-				turtle = new RabbitTurtlebot(id, name, seed, field, clientMqtt, debug);
-			}
-			else {
-				turtle = new SmartTurtlebot(id, name, seed, field, clientMqtt, debug);
-			}
-			turtle.setX(x);
-			turtle.setY(y);
-			if(debug==2 && sttime != null) {
-				turtle.setLog(sttime);
-			}
-		}
-		mesRobots.put(name, turtle);
-		return turtle;
-	}
 	public String toString() {
 		String st = "{";
 		for(Map.Entry<String, Turtlebot> entry : mesRobots.entrySet()) {
@@ -264,39 +240,13 @@ public class TurtlebotFactory implements SimulationComponent {
 		return mesRobots.get(idRobot);
 	}
 
-	public void initRobots(JSONObject content) {
-		int nbr = Integer.parseInt((String) content.get("nbRobot"));
+	public void initRobots(JSONObject nbRobot) {
+		int nbr = Integer.parseInt((String) nbRobot.get("nbRobot"));
 		if( debug == 1) {
 			System.out.println(nbr);
 		}
 		for (int i = 2; i < 2 + nbr; i++) {
 			factory(i, turtlebotName + i, clientMqtt);
 		}
-	}
-
-	public void initWolfRabbitRobots(JSONObject content) {
-		JSONArray jar = (JSONArray)content.get("jar");
-		JSONObject robotDescription;
-		int nbr = jar.size();
-		if( debug == 1) {
-			System.out.println(nbr);
-		}
-		for (int i = 2; i < 2 + nbr; i++) {
-			robotDescription = (JSONObject) jar.get(i-2);
-			String type = (String) robotDescription.get("type");
-			int x = Integer.parseInt((String) robotDescription.get("x"));
-			int y = Integer.parseInt((String) robotDescription.get("y"));
-			factory(i, turtlebotName + i, clientMqtt,type,x,y);
-		}
-	}
-	public void initRealRobots(JSONObject content) {
-		JSONArray jar = (JSONArray)content.get("jar");
-		int nbr = jar.size();
-		if( debug == 1) {
-			System.out.println(nbr);
-		}
-        for(int i = 2; i < nbr+2; i++) {
-        	factory(i, turtlebotName + i, clientMqtt);        	
-		}			
 	}
 }

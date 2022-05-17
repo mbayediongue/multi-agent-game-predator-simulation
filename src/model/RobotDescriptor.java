@@ -1,22 +1,13 @@
 package model;
 
 import org.json.simple.JSONObject;
-
-import java.awt.*;
 import java.util.Map;
 import java.util.HashMap;
 
-public class RobotDescriptor extends EntityDescriptor {
+public class RobotDescriptor extends EntityDescriptor implements Situated{
 	
-	protected Map<String,String> properties;
-	private Color color;
-	public void setColor(Color color) {
-		this.color = color;
-	}
-
-	public Color getColor() {
-		return color;
-	}
+	protected Map<String,String> properties;	
+	
 	public RobotDescriptor (int [] location, int id, String name) {
 		super(location);
 		properties = new HashMap<String, String>();
@@ -46,14 +37,6 @@ public class RobotDescriptor extends EntityDescriptor {
 
 	public void setName(String name) {
 		properties.put("name", name);
-	}
-
-	public void set(String key,String value) {
-		properties.put(key, value);
-	}
-
-	public String get(String key) {
-		return properties.get(key);
 	}
 
 	public String toString() {
