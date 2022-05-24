@@ -383,31 +383,23 @@ public class SmartWolfTurtlebot2 extends Turtlebot{
 	// Added part
 	public void wellBeing(int step) {
 
+		//On regarde à chaque fois si l'objectif est atteint.
 		if (goal!=null){
 			isGoal();
 		}
-		ArrayList<int[]> rabbitsPos =locateRabbit();
-		//ArrayList<int[]> foodsPos= locateFood();
 
-		//System.out.println("\nFood: (xFood :"+xFood+", yFood :"+yFood+")\n");
-		//System.out.println("\nWolf: (xWolf :"+xWolf+", yWolf:"+yWolf+")\n");
-		//System.out.println("Rabbit: (xRabiit :"+x+", yRabbit :"+y+")\n");
+		ArrayList<int[]> rabbitsPos =locateRabbit();
 		int xk=x;
 		int yl=y;
-		//double foodLevel=this.foodLevel;
 		double rabbitWeight=this.rabbitWeight;
-		//int distFood= distanceNearest(foodsPos, xk, yl);  // distance to the nearest food place
-		int distRabbit= distanceNearest(rabbitsPos, xk, yl); // distance to the nearest rabbit
-
-		if(distRabbit==-1) // the wolf place is not found yet
-			rabbitWeight=0;// then is not considered in the objective function
+		int distRabbit= distanceNearest(rabbitsPos, xk, yl);
+		if(distRabbit==-1)
+			rabbitWeight=0;
 		
 		String actionr = "move_forward";
 		String result = x + "," + y + "," + orientation + "," + grid.getCellsToString(y,x) + ",";
 		for(int ii = 0; ii < step; ii++) {
-			//double bestWellBeing= wolfWeight*dist(xWolf, yWolf, xk, yl)-
-			//		(foodLevel)*dist(xFood, yFood, xk, yl); 
-			double bestWellBeing= Double.NEGATIVE_INFINITY ;//foodLevel(foodLevel)*dist(xFood, yFood, xk, yl); 
+			double bestWellBeing= Double.NEGATIVE_INFINITY ;
 			EmptyCell[] ec = grid.getAdjacentEmptyCell(xk,yl);
 			int bestMove=-1;
 			for(int k=0; k<4; k++) {

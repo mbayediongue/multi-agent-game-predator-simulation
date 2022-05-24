@@ -38,6 +38,7 @@ public class TurtlebotFactory implements SimulationComponent {
 
 	
 	// added instances:
+	//champ de vision du loup.
 	protected int field_wolf=3;
 	protected int ID_robot=2;
 	protected int ID_food=4;
