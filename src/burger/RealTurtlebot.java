@@ -29,7 +29,7 @@ public class RealTurtlebot extends Turtlebot{
 		clientRosbridge = new RosbridgeClient(RealTurtlebot.ip, RealTurtlebot.port);
 	}
 
-		protected void init() {
+	protected void init() {
 		clientMqtt.subscribe("inform/grid/init");
     	clientMqtt.subscribe(name + "/position/init");		
 		clientMqtt.subscribe(name + "/grid/init");		
@@ -114,7 +114,7 @@ public class RealTurtlebot extends Turtlebot{
         			//System.out.println("Add RobotCell");
         			int idr = Integer.parseInt((String)jo.get("id"));
         			String namer = (String)jo.get("name");
-        			s = new RobotDescriptor(to, idr, namer);
+        			s = new ORobotDescriptor(to, idr, namer);
         		}
         		else {
         			//System.out.println("Add EmptyCell " + xo + ", " + yo);

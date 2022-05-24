@@ -34,7 +34,8 @@ public class SmartTurtlebot extends Turtlebot{
 		clientMqtt.subscribe(name + "/action");		
 	}
 
-	public void handleMessage(String topic, JSONObject content){				
+	public void handleMessage(String topic, JSONObject content){	
+		
 		if (topic.contains(name+"/grid/update")) {
       		JSONArray ja = (JSONArray)content.get("cells");
       		List<Situated> ls = grid.get(ComponentType.robot);
@@ -44,6 +45,8 @@ public class SmartTurtlebot extends Turtlebot{
     	    	int xo = Integer.parseInt((String)jo.get("x"));
     	    	int yo = Integer.parseInt((String)jo.get("y"));
         		int[] to = new int[]{xo,yo};
+        		
+
            		if(typeCell.equals("robot")) {
            			int idr = Integer.parseInt((String)jo.get("id"));
            			boolean findr = false;
@@ -51,7 +54,7 @@ public class SmartTurtlebot extends Turtlebot{
            				if(sss != this){
 	           				RobotDescriptor rd = (RobotDescriptor)sss;
     	       				if(rd.getId() == idr) {
-        	   					grid.moveSituatedComponent(rd.getX(), rd.getY(), xo, yo);
+        	   					grid.moveSituatedComponent(rd.getX(), rd.getY(), xo, yo); 
            						findr = true;
            						break;
            					}

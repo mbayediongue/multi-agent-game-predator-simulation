@@ -1,6 +1,7 @@
 package environnementburger;
 
 import components.SimulationComponent;
+import components.Turtlebot;
 import model.ComponentType;
 import components.Obstacle;
 import model.EmptyCell;
@@ -40,7 +41,8 @@ public class GridManagement implements SimulationComponent {
 	protected Color colorgoal;
 	protected Color colorother;
 	protected Color colorunknown;
-
+	
+	protected Color colorfood=new Color(200, 200, 200);; // added for food color
 	ColorGrid cg;
 	
 	protected int seed;
@@ -84,10 +86,25 @@ public class GridManagement implements SimulationComponent {
 						cg.setBlockColor(j,i,colorother);
 					}
 				}
-				else if(elt.getComponentType() == ComponentType.robot)
+				else if(elt.getComponentType() == ComponentType.robot) {
+					try {
+        				RobotDescriptor tb = (RobotDescriptor)elt;
+            			if( tb.getId() ==4) {
+            				cg.setBlockColor(j,i,colorrobot);
+            			}
+        			}
+        			catch (Exception e) {
+        				Turtlebot tb = (Turtlebot) elt;	
+            			if( tb.getId() ==4) {
+            				cg.setBlockColor(j,i,colorrobot);
+            			}
+        			}
 					cg.setBlockColor(j,i,colorrobot);
+				}
 				else if(elt.getComponentType() == ComponentType.obstacle)
 					cg.setBlockColor(j,i,colorobstacle);
+				else if(elt.getComponentType() == ComponentType.food)
+					cg.setBlockColor(j,i,colorfood);
 				else
 					cg.setBlockColor(j,i,colorunknown);
 			}
@@ -149,7 +166,7 @@ public class GridManagement implements SimulationComponent {
 
 	public boolean moveRobot(int id, int x1, int y1, int x2, int y2) {
 		Situated elt = grid.getCell(y1, x1);
-		if(elt.getComponentType() == ComponentType.robot) {
+		if(elt.getComponentType() == ComponentType.robot ) {
 			RobotDescriptor eltR = (RobotDescriptor)elt;
 			if(eltR.getId() == id) {
 				grid.moveSituatedComponent(x1,y1,x2,y2);
@@ -157,6 +174,9 @@ public class GridManagement implements SimulationComponent {
 					cg.setBlockColor(x1,y1,colorother);
 					cg.setBlockColor(x2,y2,colorrobot);
 				}
+				//added
+				if( eltR.getId()==4)
+					cg.setBlockColor(x1,y1,colorfood);
 				return true;
 			}
 		}
@@ -244,6 +264,18 @@ public class GridManagement implements SimulationComponent {
 					cg.setBlockColor(xor,yor,colorother);
 				}
 				cg.setBlockColor(xr, yr, colorrobot);
+				
+				// Added
+				try {
+					Situated elt = grid.getCell(yor, xor);
+					RobotDescriptor eltR = (RobotDescriptor)elt;
+					if( eltR.getId()==4)
+						cg.setBlockColor(xor, yor, colorfood);
+				}
+				catch(Exception e ) {
+					
+				}
+				//end added
 				cg.refresh();
 			}
 			if(debug == 1) {
@@ -256,6 +288,12 @@ public class GridManagement implements SimulationComponent {
 				grid.putSituatedComponent(new RobotDescriptor(pos, i, GridManagement.turtlebotName+i));
 				if(display == 1) {
 					cg.setBlockColor(pos[0], pos[1], colorrobot);
+					
+					//added 
+					if( i==4)
+						cg.setBlockColor(pos[0], pos[1], colorfood);
+					// end added
+					
 					cg.refresh();
 				}				
 			}
@@ -302,6 +340,7 @@ public class GridManagement implements SimulationComponent {
 				clientMqtt.subscribe("display/title");
 				clientMqtt.subscribe("display/robot");
 				clientMqtt.subscribe("display/goal");
+				clientMqtt.subscribe("display/food"); // added
 				clientMqtt.subscribe("display/obstacle");
 				clientMqtt.subscribe("display/other");
 				clientMqtt.subscribe("display/unknown");

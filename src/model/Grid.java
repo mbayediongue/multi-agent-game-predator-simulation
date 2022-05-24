@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import components.Turtlebot;
+
 /* This model class defines the grid components */
 public class Grid {
     private Situated[][] grid;    
@@ -257,4 +259,51 @@ public class Grid {
         }
         return result;
     }
+    
+
+    public int[] locateWolf(int x, int y){
+        for(int i=0; i < rows; i++) {
+            for(int j=0; j < columns; j++) {
+            	
+            	//Situated s = getCell(i, j); 
+        		if( (j!=x || i!=y) && (grid[i][j].getComponentType() == ComponentType.robot)) {
+        			RobotDescriptor tb = (RobotDescriptor) grid[i][j];
+        			if(  tb.getId() !=4){// le robot trouvé n'est pas le food	 		
+	        			int [] result = {j,i};
+	        	    	return result;
+        			}
+        		}
+            }   
+        }
+    	int [] result = {-1,-1};
+    	return result;
+    }
+    
+    public int[] locateFood(){
+        for(int i=0; i < rows; i++) {
+            for(int j=0; j < columns; j++) {
+            	
+        		if( grid[j][i].getComponentType() == ComponentType.robot ){
+        			try {
+        				RobotDescriptor tb = (RobotDescriptor) grid[j][i];
+            			if( tb.getId() ==4) {
+    	        			int [] result = {i,j};
+    	        	    	return result;
+            			}
+        			}
+        			catch (Exception e) {
+        				Turtlebot tb = (Turtlebot) grid[j][i];	
+            			if( tb.getId() ==4) {
+    	        			int [] result = {i,j};
+    	        	    	return result;
+            			}
+        			}
+
+        		}
+            }   
+        }
+    	int [] result = {-1,-1};
+    	return result;
+    }
+      
 }

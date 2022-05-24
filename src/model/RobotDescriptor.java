@@ -18,7 +18,15 @@ public class RobotDescriptor extends EntityDescriptor implements Situated{
 	public ComponentType getComponentType(){
 		return ComponentType.robot;
 	}
-
+	
+	public RobotType getRobotType(){
+		if( this.getId() %3 == 2 )
+			return RobotType.rabbit;
+		else if (this.getId()%3==0)
+			return RobotType.wolf;
+		else
+			return RobotType.food;
+	}
 	public String display(){
 		return getId()+"";
 	}

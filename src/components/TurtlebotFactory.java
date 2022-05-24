@@ -6,13 +6,21 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import burger.SmartTurtlebot;
+import burger.SmartWolfTurtlebot2;
+import burger.WolfTurtlebot;
+import main.IniFile;
+import main.TestAppli;
+import model.Grid;
 import burger.RandomTurtlebot;
 import burger.RealTurtlebot;
+import burger.FoodTurtlebot;
 import burger.Orientation;
+import burger.Rabbit;
 import mqtt.Message;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.io.File;
 
 /* This class defines the different operations that the robot can do on the grid */
 
@@ -28,6 +36,13 @@ public class TurtlebotFactory implements SimulationComponent {
 	protected int seed;
 	protected int field;
 	protected String sttime;
+
+	
+	// added instances:
+	protected int field_wolf=3;
+	protected int ID_robot=2;
+	protected int ID_food=4;
+	public Grid GridSharedRabbits;
 	
 	public TurtlebotFactory(String sttime) {
 		this.simulation = 0;
@@ -37,7 +52,19 @@ public class TurtlebotFactory implements SimulationComponent {
 		this.sttime = sttime;
 		mesRobots = new HashMap<String, Turtlebot>();
 	}
+	
+	public int [] getGridSize() throws Exception {
 
+		IniFile ifile= new IniFile("prop.ini");
+		int rows =  ifile.getIntValue("environment", "rows");
+		int columns =  ifile.getIntValue("environment", "columns");
+		
+		int [] size= new int[2];
+		size[0]=rows;
+		size[1]=columns;
+		return size;
+	}
+	
 	public void setMessage(Message mqtt) {
 		clientMqtt = mqtt;
 	}
@@ -164,7 +191,9 @@ public class TurtlebotFactory implements SimulationComponent {
 	    	if(debug == 1) {
 	    		System.out.println("Create real robot");
 	    	}
-	    	turtle = new RealTurtlebot(id, name, seed, field, clientMqtt, debug);
+	    	//turtle = new RealTurtlebot(id, name, seed, field, clientMqtt, debug);
+	    	turtle =new RealTurtlebot(id,  name, seed,field, clientMqtt, debug);
+
 	    	if(debug==2 && sttime != null) {
 	    		turtle.setLog(sttime);
 	    	}
@@ -172,8 +201,33 @@ public class TurtlebotFactory implements SimulationComponent {
 	    	if(debug == 1) {
 	    		System.out.println("Create simulated robot");
 	    	}
-	    	turtle = new SmartTurtlebot(id, name, seed, field, clientMqtt, debug);
+	    	
+	    	if( ID_robot%3==2) {
+	    		int[] size= {20, 20};
+	    		try {
+	    		  size = getGridSize();
+	    		}
+	    		catch (Exception e) {
+	    		}
+	    		int rows=size[0];
+	    		int columns=size[1];
+	    		
+	    		if (ID_robot==2)
+	    			GridSharedRabbits= new Grid(rows, columns, seed);
+	    		
+	    		turtle = new Rabbit(id, name, seed, field, clientMqtt, debug, GridSharedRabbits);
+	    		ID_robot+=1;
+	    	}
 	    	//turtle = new RandomTurtlebot(id, name, seed, field, clientMqtt, debug);
+	    	else if (ID_robot%3==0) {
+	    		turtle = new SmartWolfTurtlebot2(id, name, seed, field_wolf, clientMqtt, debug);
+	    		ID_robot+=1;
+	    	}
+	    	else {
+	    		turtle = new FoodTurtlebot(	ID_food, name, seed, field, clientMqtt, debug);
+	    		ID_robot+=1;
+	    	}
+	    	
 	    	if(debug==2 && sttime != null) {
 	    		turtle.setLog(sttime);
 	    	}	    	

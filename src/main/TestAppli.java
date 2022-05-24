@@ -31,7 +31,8 @@ public class TestAppli {
 	protected static Color COLORGOAL;
 	protected static Color COLOROBSTACLE;
 	protected static Color COLOROTHER;
-
+	protected static int NBSTEP;//added
+	
 	public static void main(String[] args) throws Exception {
 		String sttime = "log-"+java.time.LocalDateTime.now();
 		File f = new File(sttime);
@@ -45,6 +46,7 @@ public class TestAppli {
 		TestAppli.NBROBOT =  ifile.getIntValue("configuration", "robot");
 		TestAppli.NBOBSTACLE =  ifile.getIntValue("configuration", "obstacle");
 		TestAppli.SEED =  ifile.getIntValue("configuration", "seed");
+		TestAppli.NBSTEP=  ifile.getIntValue("configuration", "step");
 		TestAppli.FIELD =  ifile.getIntValue("configuration", "field");
 		TestAppli.ROWS =  ifile.getIntValue("environment", "rows");
 		TestAppli.COLUMNS =  ifile.getIntValue("environment", "columns");
@@ -67,6 +69,9 @@ public class TestAppli {
 		}
 
 		GridManagement env = new GridManagement();
+		
+		// added...
+		
 		env.setMessage(mqttClient);		
 		mqttClient.setAppli(env);		
 		env.initSubscribe();	
@@ -137,7 +142,7 @@ public class TestAppli {
 		env.publishInitRobot();
 		env.publishGridSize();
 		tf.initTurtleGrid();
-		tf.schedule(100);	
+		tf.schedule(TestAppli.NBSTEP);	
 		/*tf.publishRobotInit();
 		try {
 		    Thread.sleep(TestAppli.WAITTIME);

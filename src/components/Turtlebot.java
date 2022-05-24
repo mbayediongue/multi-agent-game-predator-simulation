@@ -3,9 +3,11 @@ package components;
 import model.ComponentType;
 import model.Situated;
 import burger.Orientation;
+import burger.Rabbit;
 import mqtt.Message;
 import model.ObstacleDescriptor;
 import model.RobotDescriptor;
+import model.RobotType;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -64,6 +66,7 @@ public abstract class Turtlebot implements Situated, SimulationComponent {
 		return goalReached;
 	}
 
+
 	public void setGoalReached(boolean gr){
 		goalReached = gr;
 		if(debug==2){
@@ -77,8 +80,17 @@ public abstract class Turtlebot implements Situated, SimulationComponent {
 	}	
 
 	protected abstract void init() ;
-
+	
+	
+	//added robot type: unknown, wolf, rabbit or food
+	public RobotType getRobotType() {
+		return RobotType.unknown;
+	}
+	
 	public ComponentType getComponentType() {
+
+		//if( id==9)
+		//	return ComponentType.food;
 		return ComponentType.robot;
 	}
 

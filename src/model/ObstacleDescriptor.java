@@ -13,7 +13,7 @@ public class ObstacleDescriptor extends EntityDescriptor implements Situated{
 	}
 
 	public String display(){
-		return "1";
+		return "O"; // ";"
 	}
 
 	public String toString() {
