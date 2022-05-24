@@ -5,8 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1d419a65-710b-4d14-a0e9-9833fe7cdf99" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/burger/SmartWolfTurtlebot.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/burger/SmartTurtlebot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/burger/SmartTurtlebot.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/burger/SmartWolfTurtlebot2.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/burger/SmartWolfTurtlebot2.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/burger/SmartWolfTurtlebot2.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/model/Grid.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/model/Grid.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
