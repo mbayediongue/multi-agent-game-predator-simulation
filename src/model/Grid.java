@@ -38,6 +38,25 @@ public class Grid {
         int [] result = {c,l};
         return result;
     }
+    //position du lapin
+    public int[] locateRabbit(int x, int y, int rayonDeVision) { // x et y sont les coordonnées du loup passées en paramètres pour ne pas qu'il se retrouve lui même
+        //search for an other robot in the grid
+        int xRabbit, yRabbit;
+        for( int r=0;r<rows;r++) {
+            for(int c=0; c<columns; c++) {
+                if((Math.sqrt(Math.pow((x-r+1),2)+Math.pow((y-c+1),2)))<=rayonDeVision &&
+                        grid[r][c].getComponentType() == ComponentType.robot && (r!=x || c!=y) ) {
+                    xRabbit =r;
+                    yRabbit =c;
+                    int [] result = {r,c}; //attention peut être inversé ici
+                    return result;
+                }
+            }
+        }
+        int [] result = {-1,-1};
+        return result;
+    }
+
 
     public void initUnknown(){
         for(int i=0; i < rows;i++){
