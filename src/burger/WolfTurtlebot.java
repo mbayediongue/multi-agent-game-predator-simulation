@@ -133,16 +133,7 @@ public class WolfTurtlebot extends SmartTurtlebot {
 				}
 			}else{
 				{
-					if (index_to_move==1) {
-						moveRight();
-					} else if (index_to_move==2){
-						moveBackward();
-					}else if (index_to_move==3){
-						moveForward();
-					}else{
-						moveLeft();
-					}
-					/*
+
 					if (orientation == Orientation.up) {
 						if (index_to_move==1) {
 							moveRight();
@@ -155,13 +146,13 @@ public class WolfTurtlebot extends SmartTurtlebot {
 						}
 					} else if (orientation == Orientation.down) {
 						if (index_to_move==0) {
-							moveLeft();
+							moveRight();
 						} else if (index_to_move==3){
 							moveBackward();
 						}else if (index_to_move==2){
 							moveForward();
 						}else{
-							moveRight();
+							moveLeft();
 						}
 					} else if (orientation == Orientation.right) {
 						if (index_to_move==2) {
@@ -184,8 +175,6 @@ public class WolfTurtlebot extends SmartTurtlebot {
 							moveLeft();
 						}
 					}
-
-					 */
 					if (debug == 2) {
 						try {
 							writer.write(result + actionr);
