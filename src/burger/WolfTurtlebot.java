@@ -3,6 +3,7 @@ import java.io.IOException;
 
 import model.ComponentType;
 import model.EmptyCell;
+import model.Goal;
 import model.Situated;
 import mqtt.Message;
 
@@ -10,6 +11,8 @@ public class WolfTurtlebot extends RandomTurtlebot {
 	
 	private double speed;
 	private int changeOfOrientation =3;
+
+
 
 
 	public WolfTurtlebot(int id, String name, int seed, int field, Message clientMqtt, int debug, int speed) {
@@ -75,8 +78,10 @@ public class WolfTurtlebot extends RandomTurtlebot {
 		}
 		
 	}
-	
-	public void move(int step) {	
+
+
+
+	public void move(int step) {
 		String actionr = "move_forward";
 		String result = x + "," + y + "," + orientation + ",";
 		
