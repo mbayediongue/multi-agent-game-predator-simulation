@@ -12,7 +12,6 @@ import main.IniFile;
 import main.TestAppli;
 import model.Grid;
 import burger.RandomTurtlebot;
-import burger.RealTurtlebot;
 import burger.FoodTurtlebot;
 import burger.Orientation;
 import burger.Rabbit;
@@ -187,17 +186,6 @@ public class TurtlebotFactory implements SimulationComponent {
 		if (mesRobots.containsKey(name))
 	    	return mesRobots.get(name);	    
 	    Turtlebot turtle;
-	    if(simulation == 0) {
-	    	if(debug == 1) {
-	    		System.out.println("Create real robot");
-	    	}
-	    	//turtle = new RealTurtlebot(id, name, seed, field, clientMqtt, debug);
-	    	turtle =new RealTurtlebot(id,  name, seed,field, clientMqtt, debug);
-
-	    	if(debug==2 && sttime != null) {
-	    		turtle.setLog(sttime);
-	    	}
-	    } else {
 	    	if(debug == 1) {
 	    		System.out.println("Create simulated robot");
 	    	}
@@ -230,8 +218,7 @@ public class TurtlebotFactory implements SimulationComponent {
 	    	
 	    	if(debug==2 && sttime != null) {
 	    		turtle.setLog(sttime);
-	    	}	    	
-	    }
+	    	}
 	    mesRobots.put(name, turtle);
 	    return turtle;
 	}

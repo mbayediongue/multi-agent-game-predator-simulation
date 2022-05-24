@@ -214,32 +214,6 @@ public class FoodTurtlebot extends Turtlebot{
 	}
 
 	public void move(int step) {
-			ArrayList<int[]> rabbitWolfPos =locateWolfRabbit();
-			//ArrayList<int[]> foodsPos= locateFood();
-
-			//System.out.println("Rabbit: (xRabiit :"+x+", yRabbit :"+y+")\n");
-			int xo=x;
-			int yo=y;
-
-			int distNearestAgent= distanceNearest(rabbitWolfPos, xo, yo);  // distance to the nearest agent
-			
-			if (distNearestAgent <2 && distNearestAgent >=0) {
-				int [] pos = grid.locate();
-				x=pos[0];
-				y=pos[1];
-				grid.moveSituatedComponent(xo,yo,x,y);
-				JSONObject robotj = new JSONObject();
-				robotj.put("name", name);
-				robotj.put("id", ""+id);
-				robotj.put("x", ""+x);
-				robotj.put("y", ""+y);
-				robotj.put("xo", ""+xo);
-				robotj.put("yo", ""+yo);
-				//System.out.println("MOVE MOVE " + xo + " " + yo + " --> " + x + " " + y);
-				clientMqtt.publish("robot/nextPosition", robotj.toJSONString());
-				
-			}
-
 	}
 	
 
