@@ -190,6 +190,7 @@ public class SmartWolfTurtlebot2 extends Turtlebot{
 		}
 	}
 
+	//deprecated, the move function is the function wellBeing
 	public void move(int step) {
 		System.out.println("\n Move n");
 		String actionr = "move_forward";
@@ -380,11 +381,6 @@ public class SmartWolfTurtlebot2 extends Turtlebot{
 	public void wellBeing(int step) {
 
 		ArrayList<int[]> rabbitsPos =locateRabbit();
-		//ArrayList<int[]> foodsPos= locateFood();
-
-		//System.out.println("\nFood: (xFood :"+xFood+", yFood :"+yFood+")\n");
-		//System.out.println("\nWolf: (xWolf :"+xWolf+", yWolf:"+yWolf+")\n");
-		//System.out.println("Rabbit: (xRabiit :"+x+", yRabbit :"+y+")\n");
 		int xk=x;
 		int yl=y;
 		//double foodLevel=this.foodLevel;
