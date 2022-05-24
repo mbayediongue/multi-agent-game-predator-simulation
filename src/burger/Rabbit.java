@@ -25,12 +25,12 @@ public class Rabbit extends Turtlebot{
 	protected Grid grid;
 	
 	// added
-	public double waterLevel=20;
-	public double foodLevel=5;
-	public double wolfWeight=15;
+	public double foodLevelInit=15;
+	public double foodLevel=15;
+	public double wolfWeight=20;
 	public int xlast=x;
 	public int ylast=y;
-	public double penalityLastPosition=10;
+	public double penalityLastPosition=20;
 	public int nbStep=0;
 	//public int timeSinceLastGettingOut;
 	
@@ -103,7 +103,7 @@ public class Rabbit extends Turtlebot{
     	    int stepr = Integer.parseInt((String)content.get("step"));
         	//move(stepr);
     	    wellBeing(stepr);
-    	    //this.foodLevel-=1;
+    	    this.foodLevel +=1.5;
     	    //this.waterLevel-=1;
     	    
         } else if (topic.contains("inform/grid/init")) {
@@ -366,11 +366,12 @@ public class Rabbit extends Turtlebot{
         			if (tb.getRobotType()==RobotType.wolf){// the found robot is a "wolf" 		
 	        			int [] pos1Wolf = {j,i};
 	        	    	wolfsPos.add(pos1Wolf);
-	        	    	System.out.println("\n[L "+ getId()+"]"+"Wolf: (xWolf :"+pos1Wolf[0]+", yWolf:"+ pos1Wolf[1]+")\n");
+	        	    	System.out.println("\n[Rabbit "+ getId()+"]"+" Wolf: (xWolf :"+pos1Wolf[0]+", yWolf:"+ pos1Wolf[1]+")\n");
         			}
         		}
             }
         }
+    	
     	return wolfsPos;
     }
     
@@ -386,7 +387,7 @@ public class Rabbit extends Turtlebot{
             			if (tb.getRobotType()==RobotType.food){// the found robot is a "rabbit" 		
     	        			int [] pos1food = {j,i}; // position of a food
     	        	    	foodsPos.add(pos1food);
-    	        	    	System.out.println("\n[L "+getId()+"]Food: (xFood ,"+pos1food[0]+", yFood:"+pos1food[1]+")\n");
+    	        	    	System.out.println("\n[Rabbit "+getId()+"]Food: (xFood ,"+pos1food[0]+", yFood:"+pos1food[1]+")\n");
             			}
         			}
         			
@@ -395,7 +396,7 @@ public class Rabbit extends Turtlebot{
             			if (tb.getRobotType()==RobotType.food){// the found robot is a "rabbit" 		
     	        			int [] pos1food = {j,i}; // position of a food
     	        	    	foodsPos.add(pos1food);
-    	        	    	System.out.println("\nFood:[L,"+ getId()+"]xFood :"+pos1food[0]+", yFood:"+pos1food[1]+")\n");
+    	        	    	System.out.println("\n[Rabbit "+ getId()+"] Food : (xFood :"+pos1food[0]+", yFood:"+pos1food[1]+")\n");
             			}
         			}
 
@@ -408,7 +409,8 @@ public class Rabbit extends Turtlebot{
       
 	// Added part
 	public void wellBeing(int step) {
-
+		
+		
 		ArrayList<int[]> rabbitsPos =locateWolf();
 		ArrayList<int[]> foodsPos= locateFood();
 
@@ -418,13 +420,23 @@ public class Rabbit extends Turtlebot{
 		double foodLevel=this.foodLevel;
 		double wolfWeight=this.wolfWeight;
 		int distFood= distanceNearest(foodsPos, xk, yl);  // distance to the nearest food place
-		int distRabbit= distanceNearest(rabbitsPos, xk, yl); // distance to the nearest rabbit
+		int distWolf= distanceNearest(rabbitsPos, xk, yl); // distance to the nearest rabbit
 		
 		if( distFood==-1) // food place is not found yet
 			foodLevel=0; // then food is not considered in the objective function
 		
-		if(distRabbit==-1) // the wolf place is not found yet
+		if(distWolf==-1) // the wolf place is not found yet
 			wolfWeight=0;// then is not considered in the objective function
+		if( distWolf> 2*distFood)
+			wolfWeight=0;
+		if( distWolf<3)
+			wolfWeight=2*this.wolfWeight;
+		if( distFood<3)
+			foodLevel=2*this.foodLevel;
+		if( distFood<2) {
+			foodLevel=10*this.foodLevel;
+			this.foodLevel=foodLevelInit;
+		}
 		
 		String actionr = "move_forward";
 		String result = x + "," + y + "," + orientation + "," + grid.getCellsToString(y,x) + ",";
@@ -456,8 +468,7 @@ public class Rabbit extends Turtlebot{
 					double penality=0.0;
 					if(xk==xlast && yl==ylast)
 						penality=penalityLastPosition;
-					double wellBeing= wolfWeight*distanceNearest(rabbitsPos, xk, yl)-
-							(foodLevel)*distanceNearest(foodsPos, xk, yl)-penality; 
+					double wellBeing= wolfWeight*distanceNearest(rabbitsPos, xk, yl)-(foodLevel)*distanceNearest(foodsPos, xk, yl)-penality; 
 					if (wellBeing > bestWellBeing) {
 						bestWellBeing=wellBeing;
 						bestMove=k;
@@ -467,9 +478,9 @@ public class Rabbit extends Turtlebot{
 			}
 			ec = grid.getAdjacentEmptyCell(x,y);
 			double d = Math.random();
-			if (distFood==-1 && distRabbit==-1) // if food place and rabbit position are not found then random walk
+			if (distFood==-1 && distWolf==-1) // if food place and rabbit position are not found then random walk
 				d=0.0;
-			if( d<=0.2) {
+			if( d<=0.1) {
 				bestMove=rnd.nextInt(4);
 				while( ec[bestMove]==null)
 					bestMove=rnd.nextInt(4);

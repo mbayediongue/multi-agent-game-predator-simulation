@@ -24,6 +24,7 @@ import java.io.IOException;
 public class FoodTurtlebot extends Turtlebot{
 	protected Random rnd;
 	protected Grid grid;
+	public int LastMeet=0;
 
 	public FoodTurtlebot(int id, String name, int seed, int field, Message clientMqtt, int debug) {
 		super(id, name, seed, field, clientMqtt, debug);
@@ -175,7 +176,7 @@ public class FoodTurtlebot extends Turtlebot{
 	}
 
 
-	public ArrayList<int[]> locateWolfRabbit(){
+	public ArrayList<int[]> locateRabbit(){
    	 
     	ArrayList<int[]> rabbitsWolfsPos= new ArrayList<int[]>(); // location of all rabbits
         
@@ -186,9 +187,10 @@ public class FoodTurtlebot extends Turtlebot{
         		if( (j!=x || i!=y) && (grid.getCell(i,j).getComponentType() == ComponentType.robot)) {
         			RobotDescriptor tb = (RobotDescriptor) grid.getCell(i,j);
         		
-        			if (tb.getRobotType()==RobotType.wolf || tb.getRobotType()==RobotType.rabbit){// the found robot is a "rabbit" 		
+        		if (tb.getRobotType()==RobotType.rabbit){// the found robot is a "rabbit" 		
 	        			int [] pos1Rabbit = {j,i};
 	        	    	rabbitsWolfsPos.add(pos1Rabbit);
+	        	    	return rabbitsWolfsPos;
 	        	    	//System.out.println("\n[W "+getId()+"] Food: ( xRabbit :"+pos1Rabbit[0]+", yRabbit:"+pos1Rabbit[1]+")\n");
         			}
         		}
@@ -212,9 +214,48 @@ public class FoodTurtlebot extends Turtlebot{
 		}
 		return lowestDist;
 	}
-
+	
+	/*
 	public void move(int step) {
+		
 	}
+	
+	*/
+	public void move(int step) {
+			ArrayList<int[]> rabbitWolfPos =locateRabbit();
+		
+			int xo=x;
+			int yo=y;
+		
+			int distNearestAgent= distanceNearest(rabbitWolfPos, xo, yo);  // distance to the nearest agent
+			
+			if ( (distNearestAgent <2) && (distNearestAgent >=0)) {
+				int [] pos = grid.locate();
+				
+				this.setX(pos[0]);
+				this.setY(pos[1]);
+				LastMeet=0;
+				grid.moveSituatedComponent(xo,yo,x,y);
+				JSONObject robotj = new JSONObject();
+				robotj.put("name", name);
+				robotj.put("id", ""+id);
+				robotj.put("x", ""+x);
+				robotj.put("y", ""+y);
+				robotj.put("xo", ""+xo);
+				robotj.put("yo", ""+yo);
+				//System.out.println("MOVE MOVE " + xo + " " + yo + " --> " + x + " " + y);
+				clientMqtt.publish("robot/nextPosition", robotj.toJSONString());
+				
+				
+				//Initialize the grid again
+				int rows=grid.getRows();
+				int col=grid.getColumns();
+				this.grid=new Grid(rows, col, seed);
+			}
+
+	}
+
+	
 	
 
 	public void moveLeft(int step) {
