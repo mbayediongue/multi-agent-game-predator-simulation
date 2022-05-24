@@ -1,15 +1,8 @@
 package burger;
-import model.ComponentType;
-import model.Situated;
+import model.*;
 import components.Turtlebot;
-import model.EmptyCell;
-import model.UnknownCell;
-import model.Grid;
 import mqtt.Message;
 import java.util.Random;
-import model.ObstacleDescriptor;
-import model.RobotDescriptor;
-import model.RobotType;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -24,6 +17,7 @@ import java.io.IOException;
 public class SmartWolfTurtlebot2 extends Turtlebot{
 	protected Random rnd;
 	protected Grid grid;
+	private Goal goal;
 	
 	// added
 	public double waterLevel=20;
@@ -41,13 +35,19 @@ public class SmartWolfTurtlebot2 extends Turtlebot{
 		
 		rnd = new Random(seed);	
 	}
-
 	protected void init() {
 		clientMqtt.subscribe("inform/grid/init");
     	clientMqtt.subscribe(name + "/position/init");		
 		clientMqtt.subscribe(name + "/grid/init");		
 		clientMqtt.subscribe(name + "/grid/update");		
 		clientMqtt.subscribe(name + "/action");		
+	}
+	public int isGoal() {
+			if(goal.getX() == this.x && goal.getY() == this.y) {
+				setGoalReached(true);
+				return 1;
+			}
+		return 0;
 	}
 
 	public void handleMessage(String topic, JSONObject content){	
@@ -190,12 +190,13 @@ public class SmartWolfTurtlebot2 extends Turtlebot{
 		}
 	}
 
-	//deprecated, the move function is the function wellBeing
+
 	public void move(int step) {
 		System.out.println("\n Move n");
 		String actionr = "move_forward";
 		String result = x + "," + y + "," + orientation + "," + grid.getCellsToString(y,x) + ",";
 		for(int i = 0; i < step; i++) {
+			isGoal();
 			EmptyCell[] ec = grid.getAdjacentEmptyCell(x,y);
 			if(orientation == Orientation.up) {
 				if(ec[3] != null) {
@@ -362,10 +363,12 @@ public class SmartWolfTurtlebot2 extends Turtlebot{
             	
             	//Situated s = getCell(i, j); 
         		if( (j!=x || i!=y) && (gridAgent.getCell(i,j).getComponentType() == ComponentType.robot)) {
+
         			RobotDescriptor tb = (RobotDescriptor) gridAgent.getCell(i,j);
         		
         			if (tb.getRobotType()==RobotType.rabbit){// the found robot is a "rabbit" 		
 	        			int [] pos1Rabbit = {j,i};
+						this.goal=new Goal(pos1Rabbit[0],pos1Rabbit[1],this.id);
 	        	    	rabbitsPos.add(pos1Rabbit);
 	        	    	System.out.println("\n[W "+getId()+"] Food: ( xRabbit :"+pos1Rabbit[0]+", yRabbit:"+pos1Rabbit[1]+")\n");
         			}
@@ -380,6 +383,9 @@ public class SmartWolfTurtlebot2 extends Turtlebot{
 	// Added part
 	public void wellBeing(int step) {
 
+		if (goal!=null){
+			isGoal();
+		}
 		ArrayList<int[]> rabbitsPos =locateRabbit();
 		int xk=x;
 		int yl=y;

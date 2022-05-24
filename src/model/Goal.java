@@ -1,12 +1,14 @@
 package model;
 
+import components.Turtlebot;
 import org.json.simple.JSONObject;
 
 public class Goal implements Situated {
 	
-	int x, y;	
+	int x, y;
+	Turtlebot target;
 	int robot;
-	
+
 	public Goal(int x, int y) {
 		this.x = x;
 		this.y = y;		
@@ -18,6 +20,13 @@ public class Goal implements Situated {
 		this.robot = robot;
 	}
 
+	public Goal(int robot, Turtlebot target) {
+		this.target=target;
+		this.robot = robot;
+	}
+	public Turtlebot getTarget(){
+		return this.target;
+	}
 	public int getRobot(){
 		return robot;
 	}

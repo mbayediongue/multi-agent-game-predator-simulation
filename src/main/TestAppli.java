@@ -35,6 +35,7 @@ public class TestAppli {
 	
 	public static void main(String[] args) throws Exception {
 		String sttime = "log-"+java.time.LocalDateTime.now();
+		long start= System.currentTimeMillis();
 		File f = new File(sttime);
 		f.mkdir();
 		IniFile ifile= new IniFile("prop.ini");
@@ -142,7 +143,8 @@ public class TestAppli {
 		env.publishInitRobot();
 		env.publishGridSize();
 		tf.initTurtleGrid();
-		tf.schedule(TestAppli.NBSTEP);	
+		tf.schedule(TestAppli.NBSTEP);
+		System.out.println("Run time:" + (System.currentTimeMillis() -start)+" ms");
 		/*tf.publishRobotInit();
 		try {
 		    Thread.sleep(TestAppli.WAITTIME);
