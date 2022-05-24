@@ -101,7 +101,9 @@ public class TurtlebotFactory implements SimulationComponent {
 	}
 
 	public void schedule(int nbStep) {
-		for(int i = 0; i < nbStep; i++){
+		int i=0;
+		boolean goalReach=false;
+		while(i<nbStep && goalReach==false){
 			for(Turtlebot t: mesRobots.values()) {
 				updateGrid(t);
 				moveRobot(t);
@@ -110,6 +112,12 @@ public class TurtlebotFactory implements SimulationComponent {
 				Thread.sleep(waittime);
 			}catch(InterruptedException ie){
 				System.out.println(ie);
+			}
+			i++;
+			for(Turtlebot t: mesRobots.values()) {
+				if(t.isGoalReached()==true){
+					goalReach=true;
+				}
 			}
 		}
 		for(Turtlebot t: mesRobots.values()) {
@@ -156,9 +164,9 @@ public class TurtlebotFactory implements SimulationComponent {
 	public boolean finish() {
 		int i = 0;
 		for (Turtlebot t : mesRobots.values())
-			if (!t.isGoalReached())
-				return false;
-		return true;
+			if (t.isGoalReached())
+				return true;
+		return false;
 	}
 
 	/*public void testMove(String robotN){
