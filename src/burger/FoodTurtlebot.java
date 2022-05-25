@@ -202,40 +202,49 @@ public class FoodTurtlebot extends Turtlebot{
 		int xo=x;
 		int yo=y;
 		Situated[] neighbor= new Situated[4];
-		neighbor[0]=grid.getCell(x,y-1);
-		neighbor[1]=grid.getCell(x,y+1);
-		neighbor[2]=grid.getCell(x-1,y);
-		neighbor[3]=grid.getCell(x+1,y);
-		for (Situated s: neighbor){
-			if (s.getComponentType() == ComponentType.robot) {
-				RobotDescriptor tb = (RobotDescriptor) s;
-				if (tb.getRobotType()==RobotType.rabbit){// the found robot is a "rabbit"
-					int [] pos = grid.locate();
+		neighbor=grid.getAdjacentRobot(x,y);
+		/*
+		neighbor[0]=grid.getCell(y-1,x);
+		neighbor[1]=grid.getCell(y+1,x);
+		neighbor[2]=grid.getCell(y,x-1);
+		neighbor[3]=grid.getCell(y,x+1);
+		neighbor[4]=grid.getCell(y-1,x-1);
+		neighbor[5]=grid.getCell(y+1,x+1);
+		neighbor[6]=grid.getCell(y-1,x+1);
+		neighbor[7]=grid.getCell(y+1,x-1);
 
-					this.setX(pos[0]);
-					this.setY(pos[1]);
-					this.setX(3);
-					this.setY(4);
-					/*
-					LastMeet=0;
-					grid.moveSituatedComponent(xo,yo,x,y);
-					JSONObject robotj = new JSONObject();
-					robotj.put("name", name);
-					robotj.put("id", ""+id);
-					robotj.put("x", ""+x);
-					robotj.put("y", ""+y);
-					robotj.put("xo", ""+xo);
-					robotj.put("yo", ""+yo);
-					//System.out.println("MOVE MOVE " + xo + " " + yo + " --> " + x + " " + y);
-					clientMqtt.publish("robot/nextPosition", robotj.toJSONString());
+		 */
+		for (Situated s: neighbor ){
+			if(s!=null) {
+				if (s.getComponentType() == ComponentType.robot) {
+					RobotDescriptor tb = (RobotDescriptor) s;
+					if (tb.getRobotType() == RobotType.rabbit) {// the found robot is a "rabbit"
+						int[] pos = grid.locate();
+
+						this.setX(pos[0]);
+						this.setY(pos[1]);
+
+						LastMeet = 0;
+						grid.moveSituatedComponent(xo, yo, x, y);
+
+						JSONObject robotj = new JSONObject();
+						robotj.put("name", name);
+						robotj.put("id", "" + id);
+						robotj.put("x", "" + x);
+						robotj.put("y", "" + y);
+						robotj.put("xo", "" + xo);
+						robotj.put("yo", "" + yo);
+						//System.out.println("MOVE MOVE " + xo + " " + yo + " --> " + x + " " + y);
+						clientMqtt.publish("robot/nextPosition", robotj.toJSONString());
 
 
-					//Initialize the grid again
-					int rows=grid.getRows();
-					int col=grid.getColumns();
-					this.grid=new Grid(rows, col, seed);
+						//Initialize the grid again
+						int rows = grid.getRows();
+						int col = grid.getColumns();
+						//this.grid=new Grid(rows, col, seed);
 
-					 */
+
+					}
 				}
 			}
 		}

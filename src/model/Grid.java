@@ -119,6 +119,39 @@ public class Grid {
         }
         return ls;
     }
+    public Situated[] getAdjacentRobot(int x, int y) {
+        Situated[] ls = new Situated[4];
+        ls[0] = null;
+        ls[1] = null;
+        ls[2] = null;
+        ls[3] = null;
+        Situated s;
+        if(y>0){
+            s = grid[y-1][x];
+            if(s.getComponentType() == ComponentType.robot) {
+                ls[0] = s;
+            }
+        }
+        if(y<rows-1) {
+            s = grid[y+1][x];
+            if(s.getComponentType() == ComponentType.robot) {
+                ls[1] = s;
+            }
+        }
+        if(x > 0){
+            s = grid[y][x-1];
+            if(s.getComponentType() == ComponentType.robot) {
+                ls[2] = s;
+            }
+        }
+        if(x<columns-1){
+            s = grid[y][x+1];
+            if(s.getComponentType() == ComponentType.robot) {
+                ls[3] = s;
+            }
+        }
+        return ls;
+    }
        
     public List<Situated> adjacentEmptyCell(int x, int y) {
         List<Situated> adjacentPos = new ArrayList<Situated>();

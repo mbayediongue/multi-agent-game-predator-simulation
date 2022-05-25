@@ -194,6 +194,13 @@ public class Rabbit extends Turtlebot{
 		System.out.println("\n Move n");
 		String actionr = "move_forward";
 		String result = x + "," + y + "," + orientation + "," + grid.getCellsToString(y,x) + ",";
+		int xo=x;
+		int yo=y;
+		Situated[] neighbor= new Situated[4];
+		neighbor[0]=grid.getCell(x,y-1);
+		neighbor[1]=grid.getCell(x,y+1);
+		neighbor[2]=grid.getCell(x-1,y);
+		neighbor[3]=grid.getCell(x+1,y);
 		for(int i = 0; i < step; i++) {
 			EmptyCell[] ec = grid.getAdjacentEmptyCell(x,y);
 			if(orientation == Orientation.up) {
@@ -384,7 +391,7 @@ public class Rabbit extends Turtlebot{
 
 					try{
 						Turtlebot tb = (Turtlebot) gridAgent.getCell(i,j);
-						if (tb.getRobotType()==RobotType.food){// the found robot is a "rabbit"
+						if (tb.getRobotType()==RobotType.food){
 							int [] pos1food = {j,i}; // position of a food
 							foodsPos.add(pos1food);
 							System.out.println("\n[Rabbit "+getId()+"]Food: (xFood ,"+pos1food[0]+", yFood:"+pos1food[1]+")\n");
@@ -411,16 +418,16 @@ public class Rabbit extends Turtlebot{
 	public void wellBeing(int step) {
 
 
-		ArrayList<int[]> rabbitsPos =locateWolf();
+		ArrayList<int[]> wolfPos =locateWolf();
 		ArrayList<int[]> foodsPos= locateFood();
 
-		//System.out.println("Rabbit: (xRabiit :"+x+", yRabbit :"+y+")\n");
+		//System.out.println("Rabbit: (xRabbit :"+x+", yRabbit :"+y+")\n");
 		int xk=x;
 		int yl=y;
 		double foodLevel=this.foodLevel;
 		double wolfWeight=this.wolfWeight;
-		int distFood= distanceNearest(foodsPos, xk, yl);  // distance to the nearest food place
-		int distWolf= distanceNearest(rabbitsPos, xk, yl); // distance to the nearest rabbit
+		double distFood= distanceNearest(foodsPos, xk, yl);  // distance to the nearest food place
+		double distWolf= distanceNearest(wolfPos, xk, yl); // distance to the nearest rabbit
 
 		if( distFood==-1) // food place is not found yet
 			foodLevel=0; // then food is not considered in the objective function
@@ -437,6 +444,7 @@ public class Rabbit extends Turtlebot{
 			foodLevel=10*this.foodLevel;
 			this.foodLevel=foodLevelInit;
 		}
+		wolfWeight=0;
 
 		String actionr = "move_forward";
 		String result = x + "," + y + "," + orientation + "," + grid.getCellsToString(y,x) + ",";
@@ -448,15 +456,15 @@ public class Rabbit extends Turtlebot{
 			int bestMove=-1;
 			for(int k=0; k<4; k++) {
 				if( ec[k]!=null) {
-					if (k==0) {
+					if (k==2) {
 						xk=x-1;
 						yl=y;
 					}
-					else if (k==1) {
+					else if (k==0) {
 						yl=y-1;
 						xk=x;
 					}
-					else if (k==2) {
+					else if (k==3) {
 						xk=x+1;
 						yl=y;
 					}
@@ -468,7 +476,9 @@ public class Rabbit extends Turtlebot{
 					double penality=0.0;
 					if(xk==xlast && yl==ylast)
 						penality=penalityLastPosition;
-					double wellBeing= wolfWeight*distanceNearest(rabbitsPos, xk, yl)-(foodLevel)*distanceNearest(foodsPos, xk, yl)-penality;
+					distFood= distanceNearest(foodsPos, xk, yl);  // distance to the nearest food place
+					distWolf= distanceNearest(wolfPos, xk, yl);
+					double wellBeing= wolfWeight*distWolf-(foodLevel)*distFood-penality;
 					if (wellBeing > bestWellBeing) {
 						bestWellBeing=wellBeing;
 						bestMove=k;
@@ -493,67 +503,74 @@ public class Rabbit extends Turtlebot{
 				if(orientation == Orientation.up) {
 					moveLeft(1);
 					moveForward();
+					//moveForward();
 					actionr = "turn_left";
 				} if(orientation == Orientation.down) {
 					moveRight(1);
 					moveForward();
+					//moveForward();
 					actionr = "turn_right";
 				} if(orientation==Orientation.right) {
-					moveRight(2); // demi-tour (about turn)
-					moveForward();
-					actionr = "turn_right";
+					//moveRight(2); // demi-tour (about turn)
+					//moveForward();
+					//actionr = "turn_right";
+					moveBackward();
 				} if(orientation==Orientation.left)
 					moveForward();
 			}
 			else if (bestMove==1) {
 				if(orientation == Orientation.up) {
-					moveRight(2); // demi-tour (about turn)
+					moveRight(1); // demi-tour (about turn)
 					moveForward();
+					//moveForward();
 					actionr = "turn_right";
-				} if(orientation == Orientation.down)
+				} if(orientation == Orientation.right)
 					moveForward();
-				if(orientation==Orientation.right) {
-					moveRight(1);
+				if(orientation==Orientation.down) {
+					moveLeft(1);
+					moveForward();
 					actionr = "turn_right";
 				} if(orientation==Orientation.left) {
-					moveLeft(1);
-					actionr = "turn_left";
+					moveBackward();
+					//moveLeft(1);
+					//actionr = "turn_left";
 				}
 			}
 			else if (bestMove==2) {
-				if(orientation == Orientation.up) {
-					moveRight(1);
+				if(orientation == Orientation.right) {
+					moveRight(1); // demi-tour (about turn)
 					moveForward();
+					//moveForward();
 					actionr = "turn_right";
-				} if(orientation == Orientation.down) {
-					moveLeft(1);
-					moveForward();
-					actionr = "turn_left";
-				}
-				if(orientation==Orientation.right)
+				} if(orientation == Orientation.down)
 					moveForward();
 				if(orientation==Orientation.left) {
-					moveRight(2); // demi-tour (about turn)
+					moveLeft(1);
 					moveForward();
 					actionr = "turn_right";
+				} if(orientation==Orientation.up) {
+					moveBackward();
+					//moveLeft(1);
+					//actionr = "turn_left";
 				}
 			}
 			else if(bestMove==3) {
+				if(orientation == Orientation.left) {
+					moveRight(1); // demi-tour (about turn)
+					moveForward();
+					//moveForward();
+					actionr = "turn_right";
+				}
 				if(orientation == Orientation.up)
 					moveForward();
-
-				if(orientation == Orientation.down) {
-					moveRight(2); // demi-tour (about turn)
-					moveForward();
-					actionr = "turn_right";
-				} if(orientation==Orientation.right) {
+				if(orientation==Orientation.right) {
 					moveLeft(1);
 					moveForward();
 					actionr = "turn_right";
-				} if(orientation==Orientation.left) {
-					moveRight(1);
-					moveForward();
-					actionr = "turn_left";
+				} if(orientation==Orientation.down) {
+					moveBackward();
+					//moveLeft(1);
+					//actionr = "turn_left";
 				}
 			}
 		}
@@ -570,15 +587,16 @@ public class Rabbit extends Turtlebot{
 	}
 
 	// Compute the smallest distance between a set of points and a point Po={x,y}
-	public int distanceNearest( ArrayList< int[]> points, int x, int y) {
+	public double distanceNearest( ArrayList< int[]> points, int x, int y) {
 
 		if (points.size()==0)
 			return -1;
 
-		int lowestDist=0;
+		double lowestDist= Double.POSITIVE_INFINITY;
+		//int lowestDist=0;
 		for( int k=0; k<points.size(); k++) {
 			int [] point= points.get(k);
-			int dist= (x-point[0])^2+(y-point[1])^2;
+			double dist= Math.sqrt((x-point[0])*(x-point[0])+(y-point[1])*(y-point[1]));
 			if (dist<lowestDist)
 				lowestDist=dist;
 		}
