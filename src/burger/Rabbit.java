@@ -444,7 +444,6 @@ public class Rabbit extends Turtlebot{
 			foodLevel=10*this.foodLevel;
 			this.foodLevel=foodLevelInit;
 		}
-		wolfWeight=0;
 
 		String actionr = "move_forward";
 		String result = x + "," + y + "," + orientation + "," + grid.getCellsToString(y,x) + ",";

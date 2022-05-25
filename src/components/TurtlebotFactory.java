@@ -38,7 +38,7 @@ public class TurtlebotFactory implements SimulationComponent {
 
 	
 	// added instances:
-	protected int field_wolf=10;
+	protected int field_wolf=5;
 	protected int ID_robot=2;
 	protected int ID_food=4;
 	public Grid GridSharedRabbits;
