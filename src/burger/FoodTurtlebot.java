@@ -24,6 +24,7 @@ import java.io.IOException;
 public class FoodTurtlebot extends Turtlebot{
 	protected Random rnd;
 	protected Grid grid;
+	public int LastMeet=0;
 
 	public FoodTurtlebot(int id, String name, int seed, int field, Message clientMqtt, int debug) {
 		super(id, name, seed, field, clientMqtt, debug);
@@ -174,6 +175,73 @@ public class FoodTurtlebot extends Turtlebot{
 		}
 	}
 
+	public ArrayList<int[]> locateRabbit(){
+
+		ArrayList<int[]> rabbitsPos= new ArrayList<int[]>(); // location of all rabbits
+
+		for(int i=0; i < grid.getRows(); i++) {
+			for(int j=0; j < grid.getColumns(); j++) {
+
+
+				if( (j!=x || i!=y) && (grid.getCell(i,j).getComponentType() == ComponentType.robot)) {
+					RobotDescriptor tb = (RobotDescriptor) grid.getCell(i,j);
+
+					if (tb.getRobotType()==RobotType.rabbit){// the found robot is a "rabbit"
+						int [] pos1Rabbit = {j,i};
+						rabbitsPos.add(pos1Rabbit);
+						return rabbitsPos;
+					}
+				}
+			}
+		}
+		return rabbitsPos;
+	}
+	public void move(int step) {
+		ArrayList<int[]> rabbitWolfPos =locateRabbit();
+
+		int xo=x;
+		int yo=y;
+		Situated[] neighbor= new Situated[4];
+		neighbor[0]=grid.getCell(x,y-1);
+		neighbor[1]=grid.getCell(x,y+1);
+		neighbor[2]=grid.getCell(x-1,y);
+		neighbor[3]=grid.getCell(x+1,y);
+		for (Situated s: neighbor){
+			if (s.getComponentType() == ComponentType.robot) {
+				RobotDescriptor tb = (RobotDescriptor) s;
+				if (tb.getRobotType()==RobotType.rabbit){// the found robot is a "rabbit"
+					int [] pos = grid.locate();
+
+					this.setX(pos[0]);
+					this.setY(pos[1]);
+					this.setX(3);
+					this.setY(4);
+					/*
+					LastMeet=0;
+					grid.moveSituatedComponent(xo,yo,x,y);
+					JSONObject robotj = new JSONObject();
+					robotj.put("name", name);
+					robotj.put("id", ""+id);
+					robotj.put("x", ""+x);
+					robotj.put("y", ""+y);
+					robotj.put("xo", ""+xo);
+					robotj.put("yo", ""+yo);
+					//System.out.println("MOVE MOVE " + xo + " " + yo + " --> " + x + " " + y);
+					clientMqtt.publish("robot/nextPosition", robotj.toJSONString());
+
+
+					//Initialize the grid again
+					int rows=grid.getRows();
+					int col=grid.getColumns();
+					this.grid=new Grid(rows, col, seed);
+
+					 */
+				}
+			}
+		}
+
+
+	}
 
 	public ArrayList<int[]> locateWolfRabbit(){
    	 
@@ -213,9 +281,11 @@ public class FoodTurtlebot extends Turtlebot{
 		return lowestDist;
 	}
 
+
+	/*
 	public void move(int step) {
 	}
-	
+	*/
 
 	public void moveLeft(int step) {
 		Orientation oldo = orientation;
