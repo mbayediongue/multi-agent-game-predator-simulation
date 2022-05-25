@@ -47,8 +47,10 @@ public class SmartWolfTurtlebot2 extends Turtlebot{
 		for (Situated s: robots){
 			if(s!=null){
 				RobotDescriptor tb = (RobotDescriptor) s;
-				if (tb.getRobotType() == RobotType.rabbit) {
+				if (tb.getRobotType() == RobotType.rabbit && tb.getDead()==false) {
 					setGoalReached(true);
+					tb.setDead(true);
+					this.target_name=tb.getName();
 					return 1;
 				}
 			}
@@ -379,7 +381,7 @@ public class SmartWolfTurtlebot2 extends Turtlebot{
 
         			RobotDescriptor tb = (RobotDescriptor) gridAgent.getCell(i,j);
         		
-        			if (tb.getRobotType()==RobotType.rabbit){// the found robot is a "rabbit" 		
+        			if (tb.getRobotType()==RobotType.rabbit && tb.getDead()==false){// the found robot is a "rabbit"
 	        			int [] pos1Rabbit = {j,i};
 						this.goal=new Goal(pos1Rabbit[0],pos1Rabbit[1],this.id);
 	        	    	rabbitsPos.add(pos1Rabbit);
@@ -420,74 +422,68 @@ public class SmartWolfTurtlebot2 extends Turtlebot{
 		for(int ii = 0; ii < step; ii++) {
 			//double bestWellBeing= wolfWeight*dist(xWolf, yWolf, xk, yl)-
 			//		(foodLevel)*dist(xFood, yFood, xk, yl); 
-			double bestWellBeing= Double.NEGATIVE_INFINITY ;//foodLevel(foodLevel)*dist(xFood, yFood, xk, yl); 
-			EmptyCell[] ec = grid.getAdjacentEmptyCell(xk,yl);
-			int bestMove=-1;
-			for(int k=0; k<4; k++) {
-				if( ec[k]!=null) {
-					if (k==2) {
-						xk=x-1;
-						yl=y;
-					}
-					else if (k==0) {
-						yl=y-1;
-						xk=x;
-					}
-					else if (k==3) {
-						xk=x+1;
-						yl=y;
-					}
-					else {
-						yl=y+1;
-						xk=x;
+			double bestWellBeing = Double.NEGATIVE_INFINITY;//foodLevel(foodLevel)*dist(xFood, yFood, xk, yl);
+			EmptyCell[] ec = grid.getAdjacentEmptyCell(xk, yl);
+			int bestMove = -1;
+			for (int k = 0; k < 4; k++) {
+				if (ec[k] != null) {
+					if (k == 2) {
+						xk = x - 1;
+						yl = y;
+					} else if (k == 0) {
+						yl = y - 1;
+						xk = x;
+					} else if (k == 3) {
+						xk = x + 1;
+						yl = y;
+					} else {
+						yl = y + 1;
+						xk = x;
 					}
 					// we penalize last position to avoid the wolf to loop for a long time
-					double penality=0.0;
-					if(xk==xlast && yl==ylast)
-						penality=penalityLastPosition;
-					double wellBeing= -rabbitWeight*distanceNearest(rabbitsPos, xk, yl);
+					double penality = 0.0;
+					if (xk == xlast && yl == ylast)
+						penality = penalityLastPosition;
+					double wellBeing = -rabbitWeight * distanceNearest(rabbitsPos, xk, yl);
 					if (wellBeing > bestWellBeing) {
-						bestWellBeing=wellBeing;
-						bestMove=k;
+						bestWellBeing = wellBeing;
+						bestMove = k;
 					}
-					
+
 				}
 			}
-			ec = grid.getAdjacentEmptyCell(x,y);
+			ec = grid.getAdjacentEmptyCell(x, y);
 			double d = Math.random();
-			if ( distRabbit==-1) // if food place and rabbit position are not found then random walk
-				d=0.0;
-			if( d<=0.2) {
-				bestMove=rnd.nextInt(4);
-				while( ec[bestMove]==null)
-					bestMove=rnd.nextInt(4);
+			// if food place and rabbit position are not found then random walk
+			if (distRabbit == -1) {
+					bestMove = rnd.nextInt(4);
+					while (ec[bestMove] == null)
+						bestMove = rnd.nextInt(4);
 			}
-			
+
 			System.out.println("\n Best wb: "+bestWellBeing+"\n");
 			if (bestMove==0) {
 				if(orientation == Orientation.up) {
 					moveLeft(1);
+
 					moveForward();
-					//moveForward();
 					actionr = "turn_left";
 				} if(orientation == Orientation.down) {
 					moveRight(1);
 					moveForward();
-					//moveForward();
 					actionr = "turn_right";
 				} if(orientation==Orientation.right) {
-					//moveRight(2); // demi-tour (about turn)
-					//moveForward();
-					//actionr = "turn_right";
-					moveBackward();
+					moveRight(2); // demi-tour (about turn)
+					moveForward();
+					actionr = "turn_right";
+					//moveBackward();
 				} if(orientation==Orientation.left)
 					moveForward();
 			}
 			else if (bestMove==1) {
 				if(orientation == Orientation.up) {
-					moveRight(1); // demi-tour (about turn)
+					moveRight(1);
 					moveForward();
-					//moveForward();
 					actionr = "turn_right";
 				} if(orientation == Orientation.right)
 					moveForward();
@@ -496,16 +492,15 @@ public class SmartWolfTurtlebot2 extends Turtlebot{
 					moveForward();
 					actionr = "turn_right";
 				} if(orientation==Orientation.left) {
-					moveBackward();
-					//moveLeft(1);
-					//actionr = "turn_left";
+					moveLeft(2);
+					moveForward();
+					actionr = "turn_left";
 				}
 			}
 			else if (bestMove==2) {
 				if(orientation == Orientation.right) {
-					moveRight(1); // demi-tour (about turn)
+					moveRight(1);
 					moveForward();
-					//moveForward();
 					actionr = "turn_right";
 				} if(orientation == Orientation.down)
 					moveForward();
@@ -514,16 +509,15 @@ public class SmartWolfTurtlebot2 extends Turtlebot{
 					moveForward();
 					actionr = "turn_right";
 				} if(orientation==Orientation.up) {
-					moveBackward();
-					//moveLeft(1);
-					//actionr = "turn_left";
+					moveLeft(2);
+					moveForward();
+					actionr = "turn_left";
 				}
 			}
 			else if(bestMove==3) {
 				if(orientation == Orientation.left) {
-					moveRight(1); // demi-tour (about turn)
+					moveRight(1);
 					moveForward();
-					//moveForward();
 					actionr = "turn_right";
 				}
 				if(orientation == Orientation.up)
@@ -533,9 +527,9 @@ public class SmartWolfTurtlebot2 extends Turtlebot{
 					moveForward();
 					actionr = "turn_right";
 				} if(orientation==Orientation.down) {
-					moveBackward();
-					//moveLeft(1);
-					//actionr = "turn_left";
+					moveLeft(2);
+					moveForward();
+					actionr = "turn_left";
 				}
 			}
 		}

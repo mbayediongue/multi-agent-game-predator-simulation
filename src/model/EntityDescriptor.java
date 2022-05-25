@@ -3,12 +3,20 @@ package model;
 public abstract class EntityDescriptor implements Situated{
 	
 	protected int y, x;
+	public int y_food_last, x_food_last;
+	//boolean which says if the burger is "died" or not.
+	protected boolean isDead=false;
 	
 	public EntityDescriptor (int [] location) {
 		this.x= location[0];
 		this.y = location[1];
 	}
-
+	public void setDead(boolean b){
+		this.isDead=b;
+	}
+	public boolean getDead(){
+		return this.isDead;
+	}
 	public int getX() {
 		return x;
 	}

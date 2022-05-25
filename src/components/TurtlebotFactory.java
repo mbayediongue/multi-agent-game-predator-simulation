@@ -1,25 +1,18 @@
 package components;
 
+import model.RobotType;
 import mqtt.Message;
 
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import burger.SmartTurtlebot;
 import burger.SmartWolfTurtlebot2;
-import burger.WolfTurtlebot;
 import main.IniFile;
-import main.TestAppli;
 import model.Grid;
-import burger.RandomTurtlebot;
 import burger.FoodTurtlebot;
-import burger.Orientation;
 import burger.Rabbit;
-import mqtt.Message;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.io.File;
 
 /* This class defines the different operations that the robot can do on the grid */
 
@@ -36,6 +29,8 @@ public class TurtlebotFactory implements SimulationComponent {
 	protected int field;
 	protected String sttime;
 
+	//Boolean which says if at least one rabbit is alive.
+	protected boolean rabbbitsAlive =true;
 	
 	// added instances:
 	protected int field_wolf=5;
@@ -114,8 +109,24 @@ public class TurtlebotFactory implements SimulationComponent {
 				System.out.println(ie);
 			}
 			i++;
+			for (Turtlebot t: mesRobots.values()) {
+				rabbbitsAlive =false;
+				if(t.getRobotType()==RobotType.rabbit && t.isDead==false){
+					rabbbitsAlive =true;
+				}
+			}
+
 			for(Turtlebot t: mesRobots.values()) {
-				if(t.isGoalReached()==true){
+				Turtlebot target= mesRobots.get(t.getTarget_Name());
+				if(t.isGoalReached()==true && rabbbitsAlive ==true && target.isDead==false){
+					//Turtlebot target= mesRobots.get(t.getTarget_Name());
+					target.setDead(true);
+					t.goalReached=false;
+					//mesRobots.remove(t.getTarget_Name());
+					//goalReach=true;
+				}
+
+				if (rabbbitsAlive ==false){
 					goalReach=true;
 				}
 			}

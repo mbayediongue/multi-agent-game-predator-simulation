@@ -23,6 +23,7 @@ import java.io.IOException;
 
 public abstract class Turtlebot implements Situated, SimulationComponent {	
 	protected Message clientMqtt;
+	protected String target_name;
 	protected String name;
 	protected int id;
 	protected int debug;
@@ -34,7 +35,16 @@ public abstract class Turtlebot implements Situated, SimulationComponent {
 	protected BufferedWriter writer;
 	protected int field;
 	protected String sttime;
-	
+	public boolean isDead=false;
+	public int y_food_last,x_food_last;
+
+	public String getTarget_Name() {
+		return target_name;
+	}
+	public void setDead(boolean b){
+		this.isDead=b;
+	}
+
 	protected Turtlebot(int id, String name, int seed, int field, Message clientMqtt, int debug) {
 		this.name = name;
 		this.debug = debug;

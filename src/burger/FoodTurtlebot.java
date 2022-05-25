@@ -4,7 +4,6 @@ import model.ComponentType;
 import model.Situated;
 import components.Turtlebot;
 import model.EmptyCell;
-import model.UnknownCell;
 import model.Grid;
 import mqtt.Message;
 import java.util.Random;
@@ -17,9 +16,6 @@ import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 
 public class FoodTurtlebot extends Turtlebot{
 	protected Random rnd;
@@ -221,27 +217,30 @@ public class FoodTurtlebot extends Turtlebot{
 					if (tb.getRobotType() == RobotType.rabbit) {// the found robot is a "rabbit"
 						int[] pos = grid.locate();
 
-						this.setX(pos[0]);
-						this.setY(pos[1]);
+						//this.setX(pos[0]);
+						//this.setY(pos[1]);
+						tb.y_food_last =yo;
+						tb.x_food_last =xo;
 
 						LastMeet = 0;
-						grid.moveSituatedComponent(xo, yo, x, y);
-
+						grid.moveSituatedComponent(xo,yo,pos[0],pos[1]);
 						JSONObject robotj = new JSONObject();
 						robotj.put("name", name);
-						robotj.put("id", "" + id);
-						robotj.put("x", "" + x);
-						robotj.put("y", "" + y);
-						robotj.put("xo", "" + xo);
-						robotj.put("yo", "" + yo);
+						robotj.put("id", ""+id);
+						robotj.put("x", ""+x);
+						robotj.put("y", ""+y);
+						robotj.put("xo", ""+xo);
+						robotj.put("yo", ""+yo);
 						//System.out.println("MOVE MOVE " + xo + " " + yo + " --> " + x + " " + y);
 						clientMqtt.publish("robot/nextPosition", robotj.toJSONString());
 
-
+						//LastMeet=1;
 						//Initialize the grid again
-						int rows = grid.getRows();
-						int col = grid.getColumns();
+						//int rows = grid.getRows();
+						//int col = grid.getColumns();
+
 						//this.grid=new Grid(rows, col, seed);
+						break;
 
 
 					}
