@@ -441,7 +441,7 @@ public class Rabbit extends Turtlebot{
 		return foodsPos;
 	}
 
-	// Added part
+	//Renseigne les coordonnées de nourriture que la lapion vient de mangé (et qui se trouve donc à voté de lui)
 	public int hasEaten(){
 		Situated[] robots=grid.getAdjacentRobot(x,y);
 		for (Situated s: robots){
@@ -456,6 +456,8 @@ public class Rabbit extends Turtlebot{
 		}
 		return 0;
 	}
+
+	// Fonction de bien-être (qui remplace par ailleurs la fonction move)
 	public void wellBeing(int step) {
 		hasEaten();
 
